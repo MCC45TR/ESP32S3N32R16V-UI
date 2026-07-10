@@ -1,0 +1,11 @@
+alias,material_id,notes
+AL7075,AL7075_T6,Default high-strength aluminum assumption until temper is specified.
+AL6061,AL6061_T6,Default general CNC aluminum assumption until temper is specified.
+AL6063,AL6063_T6,Default extrusion aluminum assumption until temper is specified.
+AL5005A,AL5005A_H34,Default sheet aluminum assumption until temper is specified.
+STEEL4140,STEEL4140_QT,Default quenched-tempered alloy steel assumption.
+STEEL4130,STEEL4130_NORM,Default normalized chromoly assumption.
+STEEL1050,STEEL1050_HR,Default medium/high carbon steel assumption.
+ST37,STEEL_ST37_2,Legacy DIN structural steel alias.
+STEELS235JR,STEEL_S235JR,EN structural steel alias.
+S235JR,STEEL_S235JR,Short EN structural steel alias.

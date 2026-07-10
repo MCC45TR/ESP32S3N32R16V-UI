@@ -1,0 +1,6 @@
+source_id,source_type,name,url,notes
+ASM_GENERIC,reference_family,ASM Handbook and public datasheet family,https://www.asminternational.org/,"Use for source-tracked public/handbook-style typical values; verify exact alloy temper before design allowables."
+NIST_ALUMINUM,public_dataset,NIST aluminum alloy public data,https://materialsdata.nist.gov/,"Use for aluminum validation where matching alloy and temper exist."
+MATWEB_PUBLIC,public_datasheet,MatWeb public material datasheets,https://www.matweb.com/,"Use as public datasheet pointer; do not copy proprietary restricted records."
+EN_STEEL_PUBLIC,standard_family,EN steel grade public standards,https://www.iso.org/,"Use with exact EN/DIN/ISO standard and supplier certificate for final values."
+MROS_TODO,project_note,MROS final CAD verification required,/robot-data/analysis_todo.json,"Temporary seed source for geometry-dependent values until final CAD and supplier datasheets are locked."

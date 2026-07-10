@@ -1,0 +1,58 @@
+{
+  "schema": "mros.robot_runtime_loads.v1",
+  "source": "web_cad_force_snapshot",
+  "description": "Runtime joint actuator margins generated from the browser CAD/dynamics snapshot. Rows are TTL based and feed 'robot actuator' plus the actuator section of 'robot health'.",
+  "worstJointStatus": "WATCH",
+  "jointLoads": [
+    {
+      "joint_id": "J1",
+      "link_frame_id": "J1_TURRET",
+      "axis_torque_nm": 24.5,
+      "abs_axis_torque_nm": 24.5,
+      "continuous_limit_nm": 62.0,
+      "peak_limit_nm": 186.0,
+      "nominal_continuous_limit_nm": 69.1,
+      "nominal_peak_limit_nm": 207.4,
+      "current_limited_continuous_nm": 69.1,
+      "current_limited_peak_nm": 207.4,
+      "continuous_margin_ratio": 0.395,
+      "peak_margin_ratio": 0.132,
+      "status": "OK",
+      "source": "web_cad_force_snapshot",
+      "ttl_ms": 2000,
+      "actuator_derating": {
+        "total_derating_factor": 0.897,
+        "thermal_factor": 0.944,
+        "voltage_factor": 0.950,
+        "motor_temp_c": 82.0,
+        "controller_temp_c": 70.0,
+        "bus_voltage_v": 46.8
+      }
+    },
+    {
+      "joint_id": "J2",
+      "link_frame_id": "J2_SHOULDER",
+      "axis_torque_nm": 96.0,
+      "abs_axis_torque_nm": 96.0,
+      "continuous_limit_nm": 102.0,
+      "peak_limit_nm": 306.0,
+      "nominal_continuous_limit_nm": 108.0,
+      "nominal_peak_limit_nm": 324.0,
+      "current_limited_continuous_nm": 108.0,
+      "current_limited_peak_nm": 324.0,
+      "continuous_margin_ratio": 0.941,
+      "peak_margin_ratio": 0.314,
+      "status": "WATCH",
+      "source": "web_cad_force_snapshot",
+      "ttl_ms": 2000,
+      "actuator_derating": {
+        "total_derating_factor": 0.944,
+        "thermal_factor": 0.994,
+        "voltage_factor": 0.950,
+        "motor_temp_c": 76.0,
+        "controller_temp_c": 66.0,
+        "bus_voltage_v": 46.8
+      }
+    }
+  ]
+}

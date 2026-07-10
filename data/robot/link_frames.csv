@@ -1,0 +1,10 @@
+frame_id,parent_frame,joint_index,description,origin_x_mm,origin_y_mm,origin_z_mm,axis_x,axis_y,axis_z,source
+WORLD,,0,World/base reference,0,0,0,0,0,1,MROS_TODO
+J0_BASE,WORLD,0,Base/turret local frame,0,0,0,0,0,1,MROS_TODO
+J1_TURRET,J0_BASE,0,Rotating turret frame,0,107,0,0,1,0,MROS_TODO
+J2_SHOULDER,J1_TURRET,1,Shoulder/arm1 frame,0,0,0,0,0,1,MROS_TODO
+J3_ELBOW,J2_SHOULDER,2,Elbow/arm2 frame,0,0,0,0,0,1,MROS_TODO
+J4_WRIST_A,J3_ELBOW,3,Wrist A frame,0,0,0,0,0,1,MROS_TODO
+J5_WRIST_B,J4_WRIST_A,4,Wrist B frame,0,0,0,0,0,1,MROS_TODO
+J6_WRIST_C,J5_WRIST_B,5,Wrist C frame,0,0,0,0,0,1,MROS_TODO
+J7_TOOL,J6_WRIST_C,6,Tool/end effector frame,0,0,0,0,0,1,MROS_TODO

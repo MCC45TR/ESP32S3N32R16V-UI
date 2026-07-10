@@ -1,0 +1,1158 @@
+
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MROS Dashboard</title><link rel="stylesheet" href="/style.css?v=20260515_ui_settings_r1">
+<script src="/assets/vendor/three-r128/three.min.js?v=20260422_structure_r1"></script>
+<script src="/assets/vendor/three-r128/OrbitControls.js?v=20260422_structure_r1"></script>
+<script src="/assets/vendor/three-r128/TransformControls.js?v=20260422_structure_r1"></script>
+<script src="/assets/vendor/three-r128/STLLoader.js?v=20260422_structure_r1"></script>
+<script src="/assets/vendor/three-r128/GLTFLoader.js?v=20260422_structure_r1"></script>
+<script src="/assets/vendor/three-r128/DRACOLoader.js?v=20260422_structure_r1"></script>
+<script src="/js/scene/scene-bootstrap.js?v=20260422_transport_r1"></script>
+<script src="/js/bootstrap/dom-ready.js?v=20260422_transport_r1"></script>
+<script src="/js/core/storage.js?v=20260422_transport_r1"></script>
+<script src="/js/core/status-bus.js?v=20260422_transport_r1"></script>
+<script src="/js/core/robot-model.js?v=20260510_robot_model_r1"></script>
+<script src="/js/utils/math3d.js?v=20260422_transport_r1"></script>
+<script src="/js/utils/format.js?v=20260422_transport_r1"></script>
+<script src="/js/utils/dom.js?v=20260422_transport_r1"></script>
+<script src="/js/scene/robot-ghost.js?v=20260422_transport_r1"></script>
+<script src="/js/scene/ee-target-gizmo.js?v=20260422_transport_r1"></script>
+<script src="/js/scene/trajectory-scene.js?v=20260422_transport_r1"></script>
+<script src="/js/scene/scene-labels.js?v=20260422_transport_r1"></script>
+<script src="/js/scene/robot-scene.js?v=20260619_prr_process_r1"></script>
+<script src="/js/scene/pick-place-sim.js?v=20260430_ui_comments_r1"></script>
+</head>
+<body style="overflow: hidden; margin: 0; padding: 0;">
+
+<div class="dashboard-grid">
+  <!-- PANEL 1: 3D Visualization -->
+  <div class="panel-3d">
+    <div class="hamburger-btn" onclick="toggleMobileMenu()">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </div>
+    <div class="dashboard-title">
+      <div class="dashboard-title-main">MROS 7DOF</div>
+      <div class="dashboard-title-sub">Bridge Control Workspace</div>
+    </div>
+    <div id="floating-tools-dock" class="floating-tools-dock" aria-label="Hızlı araçlar">
+      <div class="floating-tools-head">
+        <div>
+          <div class="floating-tools-kicker">Araç Merkezi</div>
+          <div class="floating-tools-caption">Sık kullanılan işlemler</div>
+        </div>
+      </div>
+      <div class="floating-tool-group floating-tool-group-download">
+        <div class="floating-tools-grid">
+          <a id="logs-download-btn" href="/api/logs" data-log-preview-endpoint="/api/logs/tail?bytes=8192" target="_blank" class="sidebar-btn btn-doc action-icon-btn" title="Log İndir (CSV)" aria-label="Log İndir (CSV)"><span class="quick-action-icon icon-doc" aria-hidden="true"></span><span class="quick-action-label">Log CSV</span></a>
+        </div>
+      </div>
+      <div class="floating-tool-group">
+        <div class="floating-tool-group-title">Çalışma</div>
+        <div class="floating-tools-grid">
+          <button id="console-fullscreen-btn" class="sidebar-btn btn-code action-icon-btn" type="button" onclick="openShellFullscreen()" title="Terminali Büyüt" aria-label="Terminali Büyüt"><span class="quick-action-icon icon-code" aria-hidden="true"></span><span class="quick-action-label">Konsol</span></button>
+          <button id="file-manager-btn" class="sidebar-btn btn-neutral action-icon-btn" type="button" onclick="openFileManager()" title="Dosya Yöneticisi" aria-label="Dosya Yöneticisi"><span class="quick-action-icon icon-files" aria-hidden="true"></span><span class="quick-action-label">Dosya</span></button>
+          <button class="sidebar-btn btn-doc action-icon-btn" onclick="openDocuments()" title="Dökümanlar" aria-label="Dökümanlar"><span class="quick-action-icon icon-doc" aria-hidden="true"></span><span class="quick-action-label">Doküman</span></button>
+        </div>
+      </div>
+      <div class="floating-tool-group">
+        <div class="floating-tool-group-title">Sistem</div>
+        <div class="floating-tools-grid">
+          <button class="sidebar-btn btn-wifi action-icon-btn" id="btn-wifi-setup" onclick="openWifiSetup()" title="WiFi Bağlan" aria-label="WiFi Bağlan"><span class="quick-action-icon icon-leaf" aria-hidden="true"></span><span class="quick-action-label">WiFi</span></button>
+          <button class="sidebar-btn btn-neutral action-icon-btn" onclick="openAllPins()" title="Donanım ve Pinler" aria-label="Donanım ve Pinler"><span class="quick-action-icon icon-cpu" aria-hidden="true"></span><span class="quick-action-label">Pinler</span></button>
+          <button class="sidebar-btn btn-neutral action-icon-btn" onclick="openSettingsModal()" title="Ayarlar" aria-label="Ayarlar"><span class="quick-action-icon icon-setting" aria-hidden="true"></span><span class="quick-action-label">Ayar</span></button>
+          <button id="reboot-recovery-btn" class="sidebar-btn btn-warn action-icon-btn" type="button" onclick="rebootToRecoveryMode()" title="Recovery Moduna Yeniden Başlat" aria-label="Recovery Moduna Yeniden Başlat"><span class="quick-action-icon icon-recovery" aria-hidden="true"></span><span class="quick-action-label">Recovery</span></button>
+        </div>
+      </div>
+      <div class="floating-tool-group">
+        <div class="floating-tool-group-title">Tanı</div>
+        <div class="floating-tools-grid">
+          <button class="sidebar-btn btn-dbg action-icon-btn" onclick="openDebugModal()" title="Debug" aria-label="Debug"><span class="quick-action-icon icon-bug" aria-hidden="true"></span><span class="quick-action-label">Debug</span></button>
+          <button class="sidebar-btn btn-out action-icon-btn" onclick="logout()" title="Çıkış" aria-label="Çıkış"><span class="quick-action-icon icon-logout" aria-hidden="true"></span><span class="quick-action-label">Çıkış</span></button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Viewport Labels (Positioned dynamically by JS) -->
+    <div id="label-cam-top" class="cam-id-label" style="position: absolute; z-index: 15; pointer-events: none;">ÜSTTEN (TOP)</div>
+    <div id="label-cam-side" class="cam-id-label" style="position: absolute; z-index: 15; pointer-events: none;">YANDAN (SIDE)</div>
+    <div id="label-cam-front" class="cam-id-label" style="position: absolute; z-index: 15; pointer-events: none;">ÖNDEN (FRONT)</div>
+    
+    <div id="canvas-container" style="position:absolute; inset:0;"></div>
+  </div>
+
+  <!-- RESIZER Y -->
+  <div class="resizer-y" id="panel-resizer"></div>
+
+  <!-- RESIZER X -->
+  <div class="resizer-x" id="sidebar-resizer"></div>
+
+  <!-- PANEL 2: System Logs -->
+  <div id="panel-logs-root" class="panel-logs">
+    <div id="logs-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <span style="font-weight: 800; font-size: 16px;">Sistem Logları & Konsol</span>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <div id="logs-autohide-controls" class="logs-autohide-controls" aria-label="Log otomatik gizleme">
+          <label class="logs-autohide-check"><input id="logs-autohide-enabled" type="checkbox">Otomatik Gizle</label>
+          <label class="logs-autohide-delay">Süre (sn)<input id="logs-autohide-delay" type="number" min="2" max="120" step="1" value="10"></label>
+        </div>
+        <span id="loop-indicator-wrap" style="font-size:12px; margin-right:15px;">Döngü: <span id="loop_ms" style="color:var(--primary); font-weight:bold;">--</span> ms</span>
+        <button class="sidebar-btn btn-out mini-action-btn" style="margin-right:5px;" onclick="clearConsoleLocal()">TEMİZLE</button>
+      </div>
+    </div>
+    
+    <div id="logs-container" style="display:flex; gap:8px; height: 100%;">
+      <!-- Terminal Window -->
+      <div id="console-panel-column" class="console-panel-column" style="width:var(--console-width, 50%); flex:none;">
+        <div id="log-text" class="console-terminal" tabindex="0" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></div>
+        <div id="console-input-row" class="console-input-row">
+          <span id="console-input-prefix" class="console-input-prefix">cmd</span>
+          <input id="console-command-input" type="text" class="console-command-input" spellcheck="false" autocomplete="off" placeholder="Komut yaz, Enter ile gonder..." />
+          <span id="shell-suggest-ghost" class="shell-suggest-ghost" aria-hidden="true"></span>
+          <button id="console-command-send" type="button" class="sidebar-btn btn-doc mini-action-btn" onclick="shellSendExec()">GONDER</button>
+        </div>
+      </div>
+      
+      <!-- INTERNAL RESIZER FOR CONSOLE/SPI -->
+      <div class="resizer-h-internal" id="console-resizer" style="margin:0;"></div>
+
+      <!-- Error Logs Row -->
+      <div id="error-logs-row" style="flex:1; display:flex; flex-direction:row; gap:10px; min-width:0;">
+            <!-- P4 SPI Error Log Table -->
+        <div id="p4-spi-panel" style="width: var(--p4-spi-width, 50%); flex: none; display:flex; flex-direction:column; background:var(--bg); border:1px solid var(--border); border-radius:10px; overflow:hidden; min-width: 20%;">
+          <div style="padding:8px; background:var(--surface-var); font-size:12px; font-weight:bold; display:flex; justify-content:space-between;">
+            <span>P4 SPI Hataları (Son 25)</span>
+            <span id="spi_err_status" style="opacity:0.7; font-weight:normal;"></span>
+          </div>
+          <div id="spi_err_table_wrap" style="flex:1; overflow-y:auto; overflow-x:auto;">
+            <table id="spi_err_table" style="width:100%; border-collapse:collapse; font-size:11px; font-family:monospace;">
+              <thead style="position:sticky; top:0; background:var(--surface);">
+                <tr>
+                  <th style="padding:4px;">#</th><th style="padding:4px;">Zaman (ms)</th><th style="padding:4px;">Tür</th>
+                  <th style="padding:4px;">Mrkr</th><th style="padding:4px;">Sıra</th><th style="padding:4px;">CRC(B/G)</th>
+                </tr>
+              </thead>
+              <tbody id="spi_err_tbody">
+                <tr><td colspan="6" style="text-align:center; padding:15px; color:#888;">Veri bekleniyor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INTERNAL RESIZER -->
+        <div class="resizer-h-internal" id="internal-table-resizer"></div>
+
+        <!-- C3 SPI Error Log Table -->
+        <div id="c3-spi-panel" style="flex:1; display:flex; flex-direction:column; background:var(--bg); border:1px solid var(--border); border-radius:10px; overflow:hidden; min-width: 20%;">
+          <div style="padding:8px; background:var(--surface-var); font-size:12px; font-weight:bold; display:flex; justify-content:space-between;">
+            <span>C3 SPI Durumu & Hataları</span>
+            <span id="uart_err_status" style="opacity:0.7; font-weight:normal;"></span>
+          </div>
+          <div style="flex:1; padding:5px; overflow-y: auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; font-family:monospace;">
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">CRC Hataları</td>
+                <td id="uart_crc_err" style="padding:6px; text-align:right; color:#EA6A6A; font-weight:bold;">0</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">Marker Hataları</td>
+                <td id="c3_marker_err" style="padding:6px; text-align:right; color:#EAB96A; font-weight:bold;">0</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">Enkoder Pozisyonu</td>
+                <td id="c3_pos_disp" style="padding:6px; text-align:right; color:#B5EA6A; font-weight:bold;">0.00°</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">Enkoder Hız</td>
+                <td id="c3_spd_disp" style="padding:6px; text-align:right; color:#6A97EA; font-weight:bold;">0.0</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">Enkoder İvme</td>
+                <td id="c3_acc_disp" style="padding:6px; text-align:right; color:#6A97EA; font-weight:bold;">0.0</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">RX Hızı</td>
+                <td id="c3_total_rx" style="padding:6px; text-align:right; color:#aaa; font-weight:bold;">0.0 pkt/s</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">Kalite</td>
+                <td id="c3_quality" style="padding:6px; text-align:right; color:#B5EA6A; font-weight:bold;">100.00% (Sağlıklı)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #444;">
+                <td style="padding:6px; color:#aaa;">ESP32C3 Durumu</td>
+                <td style="padding:6px; text-align:right;"><span id="c3_status_disp" class="badge red">KAPALI</span></td>
+              </tr>
+              <tr>
+                <td style="padding:6px; color:#aaa;">Bağlantı</td>
+                <td style="padding:6px; text-align:right;"><span id="uart_conn_disp" class="badge red">KOPUK</span></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+     </div>
+
+      </div>
+    </div>
+
+  <!-- PANEL 3: Right Sidebar Controls -->
+  <div class="panel-sidebar right-sidebar">
+    
+    <div class="sidebar-dock">
+      <div class="sidebar-kicker">Device Dock</div>
+      <div class="device-status-row">
+        <div id="badge-p4" class="dev-badge offline">ESP32P4</div>
+        <div id="badge-c3" class="dev-badge offline">ESP32C3</div>
+        <div id="badge-s3" class="dev-badge ok" style="background-color:var(--primary); color:#121212;">ESP32S3</div>
+        <div id="badge-pca" class="dev-badge offline">PCA9685</div>
+      </div>
+    </div>
+
+    <div class="sidebar-header sidebar-status" style="display:flex; justify-content:space-between; align-items:center; font-size:11px;">
+       <span id="spi_conn_status" class="badge red">SPI Bağlantı Yok</span>
+    </div>
+
+    <!-- Power Control -->
+    <div class="sidebar-safety" style="display:flex; gap:8px; margin-bottom:10px; padding:10px; background:var(--surface-var); border-radius:10px; flex-wrap: nowrap;">
+         <button id="btn-pwr" class="sidebar-btn btn-pri" onclick="togglePower()" style="flex:1; min-width:0; padding:10px 4px; font-size:11px; white-space:normal; line-height:1.2;">MOTORLARI AC</button>
+         <button id="btn-oe" class="sidebar-btn btn-out" onclick="toggleOE()" style="flex:1; min-width:0; padding:10px 4px; font-size:11px; white-space:normal; line-height:1.2;">MOTORLARI DEVRE DIŞI BIRAK</button>
+    </div>
+
+    <div class="sidebar-live-card">
+      <div class="sidebar-status-grid">
+        <div class="sidebar-status-item">
+          <span>IK Kanalı</span>
+          <strong id="ik_fallback_state">WEB</strong>
+        </div>
+        <div class="sidebar-status-item">
+          <span>Hedef</span>
+          <strong id="ik_target_status">Hazır</strong>
+        </div>
+        <div class="sidebar-status-item">
+          <span>Tork</span>
+          <strong id="torque_sidebar_summary">Hazır değil</strong>
+        </div>
+      </div>
+      <div class="sidebar-live-actions">
+        <button id="btn-live-preview" class="sidebar-btn btn-doc" onclick="toggleLivePreview()" title="Canlı önizlemeyi aç/kapat">Canlı Önizleme: Açık</button>
+      </div>
+    </div>
+
+    <!-- Main / Sub Navigation -->
+    <div class="sidebar-nav">
+      <div id="sidebar-primary-tabs" class="tab-headers main-tab-headers sidebar-primary-tabs">
+        <div class="tab-btn active" data-sub="tab-coord" onclick="switchSubPanel('tab-coord', this)">Hedef</div>
+        <div class="tab-btn" data-sub="tab-joint" onclick="switchSubPanel('tab-joint', this)">Manuel</div>
+        <div class="tab-btn" data-sub="tab-program" onclick="switchSubPanel('tab-program', this)">Program</div>
+        <div class="tab-btn" data-sub="tab-pid" onclick="switchSubPanel('tab-pid', this)">Bakım</div>
+        <div class="tab-btn" data-sub="tab-diagnostics" onclick="switchSubPanel('tab-diagnostics', this)">Tanı</div>
+      </div>
+    </div>
+
+    <!-- Tab 1: Koordinat Kontrol -->
+    <div id="tab-coord" class="tab-content sidebar-section active">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <div style="font-weight: 800; font-size:16px;">Hedef Koordinatlar</div>
+        <div style="display:flex; gap:6px;">
+          <button class="sidebar-btn btn-doc icon-compact-btn" onclick="addTrajectoryPoint()" title="Koordinatı Yörüngeye Ekle">+</button>
+          <button class="sidebar-btn btn-out icon-compact-btn" onclick="popTrajectoryPoint()" title="Son Ekleneni Çıkar">-</button>
+        </div>
+      </div>
+      <div id="traj_points_disp" class="traj-dash-list" style="font-size:10px; color:#aaa; margin-bottom:10px;"></div>
+      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">X</span>
+          <input type="number" id="ik_x" class="coord-input" step="1" value="300" style="width:100% !important;">
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Y</span>
+          <input type="number" id="ik_y" class="coord-input" step="1" value="0" style="width:100% !important;">
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Z</span>
+          <input type="number" id="ik_z" class="coord-input" step="1" value="250" style="width:100% !important;">
+        </div>
+        <div style="flex: 1.2; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Hız Katsayısı</span>
+          <select id="ik_speed_scale" class="coord-input" onchange="onIkTrajScaleChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+            <option value="2.25">2.25x</option>
+            <option value="2.5">2.5x</option>
+            <option value="2.75">2.75x</option>
+            <option value="3">3x</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Roll</span>
+          <input type="number" id="ik_roll" class="coord-input" step="1" value="0" style="width:100% !important;" oninput="document.getElementById('ik_ee_auto').checked = false;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Pitch</span>
+          <input type="number" id="ik_ee_p" class="coord-input" step="1" value="0" style="width:100% !important;" oninput="document.getElementById('ik_ee_auto').checked = false;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Yaw</span>
+          <input type="number" id="ik_yaw" class="coord-input" step="1" value="0" style="width:100% !important;" oninput="document.getElementById('ik_ee_auto').checked = false;">
+        </div>
+        <div style="flex:1.2 1 120px; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; background:rgba(0,0,0,0.10); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:8px 10px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:800; cursor:pointer;">
+            <input type="checkbox" id="ik_ee_auto" title="Oryantasyonu serbest bırak" checked style="margin:0; width:12px; height:12px; accent-color:var(--primary);">
+            Oryantasyon Auto
+          </label>
+          <span style="font-size:10px; color:#a5b5bf; margin-top:4px;">Eski `alpha` uyumluluğu = pitch alias.</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <button id="ik_mode_planned" class="sidebar-btn btn-doc" type="button" onclick="setIkInteractionMode('plan')" style="flex:1 1 160px;">Planlı Hareket</button>
+        <button id="ik_mode_unplanned" class="sidebar-btn btn-pri" type="button" onclick="setIkInteractionMode('realtime')" style="flex:1 1 160px;">Plansız Hareket</button>
+      </div>
+      <div id="ik_unplanned_controls_row" style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <button id="ik_manip_translate" class="sidebar-btn btn-doc" type="button" onclick="setIkManipulatorMode('translate')" style="flex:1 1 120px;">Manipülatör: Taşı</button>
+        <button id="ik_manip_rotate" class="sidebar-btn btn-neutral" type="button" onclick="setIkManipulatorMode('rotate')" style="flex:1 1 120px;">Manipülatör: Döndür</button>
+      </div>
+      <div id="ik_planned_controls_row" style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <button id="ik_apply_cached_plan" class="sidebar-btn btn-out" type="button" onclick="applyPlannedIkTarget()" style="flex:1 1 120px;">Planı Uygula</button>
+      </div>
+      <div id="ik_manip_hint" style="margin:-2px 0 10px; font-size:10px; color:#9fb0bf;">
+        Döndür modunda gizmo uç hedefin önüne alınır; X/Y/Z halkaları ile yaklaşım açısı ayarlanır.
+      </div>
+      <div class="sidebar-inline-status" style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; font-size:11px;">
+        <div id="ik_transform_frame_card" style="flex:1 1 150px; padding:8px 10px; border-radius:10px; background:rgba(0,0,0,0.10); border:1px solid rgba(255,255,255,0.08);">
+          <div style="color:#a5b5bf;">Manipülatör Frame</div>
+          <div id="ik_transform_frame_state" style="font-weight:800; color:var(--primary);">WORLD / LOCAL</div>
+        </div>
+      </div>
+      <details class="sidebar-collapsible trajectory-mode-group">
+        <summary>Trajectory Çözdürme Modları</summary>
+        <div class="sidebar-collapsible-body">
+          <label class="trajectory-mode-select">
+            <span>Aktif trajectory modu</span>
+            <select id="ik_traj_mode" class="coord-input" onchange="onIkMathUiChanged()">
+              <option value="quintic">Quintic</option>
+              <option value="heptic">Heptic</option>
+              <option value="scurve">S-Curve / Jerk Limited</option>
+              <option value="time-optimal">Time Optimal / Trapezoid</option>
+              <option value="linear">Linear</option>
+            </select>
+          </label>
+          <div class="trajectory-mode-grid">
+            <div class="trajectory-mode-card"><strong>Quintic</strong><span>Yumuşak başlangıç/bitiş, genel robot hareketi için güvenli varsayılan.</span></div>
+            <div class="trajectory-mode-card"><strong>Heptic</strong><span>Daha yumuşak yüksek dereceli geçiş, hassas pozlama ve düşük titreşim.</span></div>
+            <div class="trajectory-mode-card"><strong>S-Curve</strong><span>Jerk sınırlı profil; mekanik şok ve ani ivme değişimini azaltır.</span></div>
+            <div class="trajectory-mode-card"><strong>Time Optimal</strong><span>Trapezoid benzeri hızlı çözüm; süre öncelikli hareketlerde kullanılır.</span></div>
+            <div class="trajectory-mode-card"><strong>Linear</strong><span>Doğrudan interpolasyon; hızlı test ve basit doğrusal önizleme için.</span></div>
+          </div>
+        </div>
+      </details>
+      <details class="sidebar-collapsible ik-advanced-group">
+        <summary>Gelişmiş IK Ayarları</summary>
+        <div class="sidebar-collapsible-body">
+      <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <div style="flex:1 1 120px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Solver</span>
+          <select id="ik_solver" class="coord-input" onchange="onIkMathUiChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="dls">DLS</option>
+            <option value="qp">QP</option>
+            <option value="svd-robust">SVD Robust</option>
+          </select>
+        </div>
+        <div style="flex:1 1 120px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Jacobian</span>
+          <select id="ik_jacobian" class="coord-input" onchange="onIkMathUiChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="numerical">Numerical</option>
+            <option value="geometric">Geometric</option>
+            <option value="spatial">Spatial PoE</option>
+          </select>
+        </div>
+        <div style="flex:1 1 120px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Null-Space</span>
+          <select id="ik_nullspace" class="coord-input" onchange="onIkMathUiChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="joint_centering">Joint Centering</option>
+            <option value="off">Off</option>
+          </select>
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Sigma</span>
+          <input type="number" id="ik_sigma_thresh" class="coord-input" step="0.1" value="5" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+      </div>
+      <div class="trajectory-mode-grid ik-advanced-help-grid">
+        <div class="trajectory-mode-card"><strong>Solver</strong><span>DLS yumuşak ve güvenli varsayılandır; QP eklem limitlerini daha bilinçli tartar; SVD Robust tekillik yakınında daha sakin çözüm arar.</span></div>
+        <div class="trajectory-mode-card"><strong>Jacobian</strong><span>Numerical hızlı ayar ve test içindir; Geometric model eksenlerini doğrudan kullanır; Spatial PoE daha tutarlı uzaysal analiz sağlar.</span></div>
+        <div class="trajectory-mode-card"><strong>Null-Space</strong><span>Joint Centering uç-efektör hedefini korurken eklemleri orta bölgeye çeker; Off seçimi sadece ana hedef hatasına odaklanır.</span></div>
+        <div class="trajectory-mode-card"><strong>Sigma / Lambda</strong><span>Sigma tekillik eşiğidir; Lambda sönümleme üst sınırıdır. Değer yükseldikçe hareket sakinleşir, fakat hedefe yaklaşma yavaşlayabilir.</span></div>
+        <div class="trajectory-mode-card"><strong>Toleranslar</strong><span>Pos Tol ve Ori Tol hedefe ne kadar yakın olunca çözümün kabul edileceğini belirler. Hassasiyet artarsa iterasyon süresi de artabilir.</span></div>
+        <div class="trajectory-mode-card"><strong>Step / Jump</strong><span>Max Step, Cart Step ve Jump Thr ani sıçramaları sınırlar. Robot titreşiyorsa düşürün; hedefe zor ulaşıyorsa kontrollü yükseltin.</span></div>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Pos Tol</span>
+          <input type="number" id="ik_pos_tol_mm" class="coord-input" step="0.1" value="0.5" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Ori Tol</span>
+          <input type="number" id="ik_ori_tol_deg" class="coord-input" step="0.1" value="0.5" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Alpha</span>
+          <input type="number" id="ik_alpha_step" class="coord-input" step="0.05" value="0.5" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Null</span>
+          <input type="number" id="ik_null_gain" class="coord-input" step="0.05" value="0.1" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
+        <div style="flex:1 1 120px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Rota</span>
+          <select id="ik_path_height_mode" class="coord-input" onchange="onIkMathUiChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="ground">Zeminde</option>
+            <option value="elevated">Yükseltide</option>
+          </select>
+        </div>
+        <div style="flex:1 1 120px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Turret</span>
+          <select id="ik_turret_mode" class="coord-input" onchange="onIkMathUiChanged()" style="width:100% !important; background:#2D2626; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;">
+            <option value="auto_shortest">Otomatik En Kısa</option>
+            <option value="shortest">En Kısa</option>
+            <option value="stable">Stabil</option>
+          </select>
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Z Min</span>
+          <input type="number" id="ik_ground_z_mm" class="coord-input" step="1" value="0" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Lambda</span>
+          <input type="number" id="ik_lambda_max" class="coord-input" step="0.05" value="0.5" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Max Step</span>
+          <input type="number" id="ik_max_step_deg" class="coord-input" step="0.5" value="10" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Max Iter</span>
+          <input type="number" id="ik_max_iter" class="coord-input" step="1" value="500" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Cart Step</span>
+          <input type="number" id="ik_cart_step_mm" class="coord-input" step="1" value="8" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Yaw Step</span>
+          <input type="number" id="ik_yaw_step_deg" class="coord-input" step="0.5" value="4" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+        <div style="flex:1 1 88px; display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:11px; font-weight:800; margin-bottom:3px;">Jump Thr</span>
+          <input type="number" id="ik_jump_revolute_deg" class="coord-input" step="0.5" value="18" onchange="onIkMathUiChanged()" style="width:100% !important;">
+        </div>
+      </div>
+        </div>
+      </details>
+
+      <div class="jog-card">
+        <div class="jog-head">
+          <span>Sanal Kontrolcü (Jog)</span>
+          <label class="jog-live-toggle"><input type="checkbox" id="jog_live_apply" checked> Canlı Uygula</label>
+        </div>
+        <div class="jog-layout">
+          <div id="jog-pad" class="jog-pad" title="XY için sürükle">
+            <div class="jog-cross-x"></div>
+            <div class="jog-cross-y"></div>
+            <div id="jog-knob" class="jog-knob"></div>
+          </div>
+          <div class="jog-z-wrap">
+            <span class="jog-z-label">Z</span>
+            <div id="jog-z-rail" class="jog-z-rail" title="Z için sürükle">
+              <div id="jog-z-knob" class="jog-z-knob"></div>
+            </div>
+          </div>
+        </div>
+        <div class="jog-meta">
+          <span id="jog_xy_readout">XY: 0, 0</span>
+          <span id="jog_z_readout">Z: 0</span>
+        </div>
+      </div>
+      
+      <div class="coord-action-stack" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+        <button class="sidebar-btn btn-doc" onclick="calculateIK()">Hesapla</button>
+        <button class="sidebar-btn btn-neutral" onclick="previewIKMotion()">Önizle</button>
+        <button class="sidebar-btn btn-out" onclick="clearIKInputs()">Temizle</button>
+        <button class="sidebar-btn btn-pri" onclick="sendIK()">Uygula</button>
+        <button id="btn-ik-fallback" class="sidebar-btn btn-neutral" onclick="toggleIkFallbackMode()">IK FALLBACK: AÇIK (WEB)</button>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#aab4bc;">IK kanalı ve hedef durumu üst canlı kartta izlenir.</div>
+      <p id="ik_status" style="font-size:12px; margin-top:10px; color:var(--text); opacity:0.8;"></p>
+
+    </div>
+
+    <!-- Tab: Bakim -->
+    <div id="tab-pid" class="tab-content sidebar-section">
+      <div class="side-section-head">
+        <div>
+          <div class="side-section-title">Bakım ve Kalibrasyon</div>
+          <div class="side-section-note">PID, servo/enkoder kalibrasyonu ve dosya araçları.</div>
+        </div>
+      </div>
+      <div class="sidebar-section-card">
+      <div style="font-weight: 800; margin-bottom: 15px; font-size:16px;">Turret PID Ayarları</div>
+      <p style="font-size:11px; color:var(--text); opacity:0.7; margin-bottom:15px;">Turret stabilitesi için S3 üzerindeki anlık kontrol kazançları. Değerleri değiştirdiğinizde hemen etkili olur.</p>
+      <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Kp</span>
+          <input type="number" id="pid_p" class="coord-input" step="0.1" value="0.6" style="width:100% !important;">
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Kd</span>
+          <input type="number" id="pid_d" class="coord-input" step="0.1" value="0.05" style="width:100% !important;">
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">Ki</span>
+          <input type="number" id="pid_i" class="coord-input" step="0.01" value="0.6" style="width:100% !important;">
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">IMax</span>
+          <input type="number" id="pid_imax" class="coord-input" step="10" value="0" style="width:100% !important;">
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; margin-bottom: 3px;">DSPC</span>
+          <input type="number" id="pid_dspc" class="coord-input" step="1" value="6" style="width:100% !important;" title="Dead-Spot Compensation (minimum kontrol sinyali)">
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+        <button class="sidebar-btn btn-pri" onclick="updatePID()">PID Kazançlarını Gönder</button>
+        <button class="sidebar-btn btn-neutral" onclick="resetPIDDefaults()">Varsayılan PID Değerlerine Sıfırla</button>
+        <button class="sidebar-btn btn-dbg" onclick="resetTurretPosition()">Turret Konumunu Sıfırla</button>
+      </div>
+      
+      <div style="background-color: var(--bg); padding:10px; margin-top:15px; border-radius:10px; font-size:12px;">
+         <div style="display:flex; justify-content:space-between;"><span>Hedef: <strong id="pid_target">0.0°</strong></span><span>Gerçek (Carrier): <strong id="pid_actual">0.0°</strong></span></div>
+         <div style="margin-top:5px;">Hata: <strong id="pid_error" style="color:#EAB96A;">0.0°</strong> | Kontrol Sinyali: <strong id="pid_out">0</strong></div>
+      </div>
+      
+      <button class="sidebar-btn btn-doc" onclick="openPIDOptModal()" style="margin-top:15px; width:100%;">PID Optimizasyon</button>
+      </div>
+
+      <div class="sidebar-section-card">
+        <div class="sidebar-section-title small">Servo / Enkoder Araçları</div>
+        <p class="side-section-note">Kalibrasyon ve servo-enkoder test panelleri.</p>
+        <div class="sidebar-action-grid two">
+          <button onclick="openCalibration()" class="sidebar-btn btn-neutral">Servo Kalibrasyon</button>
+          <button onclick="openEncoderMotorCal()" class="sidebar-btn btn-neutral">Enkoder - Motor Kalibrasyonu</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section-card">
+        <div class="sidebar-section-title small">Dosya Araçları</div>
+        <p class="side-section-note">Yeni dosya işlemleri için bakım yüzeyi. Kapsamlı dosya yöneticisi üst araç merkezinden açılır.</p>
+      </div>
+    </div>
+
+    <!-- Tab 3: Eklem Kontrol -->
+    <div id="tab-joint" class="tab-content sidebar-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+        <div style="font-weight: 800; font-size:16px;">Manuel Eklem Kontrolü</div>
+        <button onclick="resetAllJoints()" class="sidebar-btn btn-neutral" style="flex:none; width:auto; padding:4px 8px;"><span class="btn-inline-content"><span class="mini-icon icon-home" aria-hidden="true"></span><span>Sıfırla (Home)</span></span></button>
+      </div>
+      
+      <!-- Eklem Satırları J1 - J7 + G -->
+      <div class="joint-row">
+        <span class="joint-label">Turret</span>
+        <input type="range" class="joint-slider" id="sl_t" min="-270" max="270" step="0.1" value="0" oninput="updateSlider('t', 'T', this.value, 0.1)">
+        <div class="joint-val-box">
+           <button class="joint-btn" onclick="stepSlider('t', 'T', -0.1, -270, 270)">-</button>
+           <span class="joint-val" id="val_t">0.0</span>
+           <button class="joint-btn" onclick="stepSlider('t', 'T', 0.1, -270, 270)">+</button>
+        </div>
+      </div>
+      
+      <div class="joint-circular-grid">
+        <div class="joint-circular-wrap" id="cjoint_j2" data-axis="j2">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j2" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j2', 'J0', this.value, 0.5)">
+          <svg id="cjoint_svg_j2" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j2" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j2" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J2</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j2', 'J0', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j2">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j2', 'J0', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+        <div class="joint-circular-wrap" id="cjoint_j3" data-axis="j3">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j3" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j3', 'J1', this.value, 0.5)">
+          <svg id="cjoint_svg_j3" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j3" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j3" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J3</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j3', 'J1', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j3">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j3', 'J1', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+        <div class="joint-circular-wrap" id="cjoint_j4" data-axis="j4">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j4" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j4', 'J2', this.value, 0.5)">
+          <svg id="cjoint_svg_j4" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j4" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j4" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J4</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j4', 'J2', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j4">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j4', 'J2', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+        <div class="joint-circular-wrap" id="cjoint_j5" data-axis="j5">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j5" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j5', 'J3', this.value, 0.5)">
+          <svg id="cjoint_svg_j5" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j5" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j5" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J5</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j5', 'J3', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j5">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j5', 'J3', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+        <div class="joint-circular-wrap" id="cjoint_j6" data-axis="j6">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j6" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j6', 'J4', this.value, 0.5)">
+          <svg id="cjoint_svg_j6" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j6" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j6" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J6</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j6', 'J4', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j6">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j6', 'J4', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+        <div class="joint-circular-wrap" id="cjoint_j7" data-axis="j7">
+          <input type="range" class="joint-slider joint-slider-hidden" id="sl_j7" min="-90" max="90" step="0.5" value="0" oninput="updateSlider('j7', 'J5', this.value, 0.5)">
+          <svg id="cjoint_svg_j7" class="joint-circular-svg" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="joint-circular-track" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <path id="cjoint_fill_j7" class="joint-circular-fill" d="M20 100 A80 80 0 0 1 180 100"></path>
+            <circle id="cjoint_knob_j7" class="joint-circular-knob" cx="100" cy="20" r="8"></circle>
+          </svg>
+          <div class="joint-circular-name">J7</div>
+          <div class="joint-circular-axis left">-</div>
+          <div class="joint-circular-axis center">0</div>
+          <div class="joint-circular-axis right">+</div>
+          <div class="joint-circular-value-box">
+            <button class="joint-btn" onclick="stepSlider('j7', 'J5', -0.5, -90, 90)">-</button>
+            <span class="joint-val" id="val_j7">0.0</span>
+            <button class="joint-btn" onclick="stepSlider('j7', 'J5', 0.5, -90, 90)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="joint-row">
+        <span class="joint-label" style="font-size:11px;">Tutucu</span>
+        <input type="range" class="joint-slider" id="sl_g" min="0" max="50" step="0.5" value="0" oninput="updateSlider('g', 'G', this.value, 0.5)">
+        <div class="joint-val-box" style="border-color:#6A97EA;">
+           <button class="joint-btn" style="color:#6A97EA;" onclick="stepSlider('g', 'G', -0.5, 0, 50)">-</button>
+           <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden;"><span class="joint-val" id="val_g" style="flex:none;">0.0</span><span style="font-size:10px; color:#A5B5BF;">mm</span></div>
+           <button class="joint-btn" style="color:#6A97EA;" onclick="stepSlider('g', 'G', 0.5, 0, 50)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Tani -->
+    <div id="tab-diagnostics" class="tab-content sidebar-section">
+      <div class="side-section-head">
+        <div>
+          <div class="side-section-title">Tanı ve Canlı Değerler</div>
+          <div class="side-section-note">Planlanan/gerçek koordinatları, SPI kaynaklı anlık değerleri ve tork analizini burada izle.</div>
+        </div>
+        <button class="sidebar-mini-icon-btn" onclick="kin3d_openTorqueInfo()" title="Tork detayları" aria-label="Tork detayları"><span class="mini-icon icon-info" aria-hidden="true"></span></button>
+      </div>
+
+      <!-- FK Coordinate Display (Planned and Actual) -->
+      <div id="fk-coord-panel" class="sidebar-telemetry-grid" style="margin-top:8px; padding:10px; background:var(--bg); border-radius:10px; border:1px solid var(--border);">
+        <!-- Planned Section -->
+        <div style="font-size:10px; font-weight:800; color:var(--secondary); margin-bottom:4px; display:flex; justify-content:space-between;">
+           <span>HAYALİ KONUM (PLANLANAN)</span>
+           <span style="color:#666; font-size:9px;">SLIDER FK</span>
+        </div>
+        <div style="display:flex; gap:4px; font-family:monospace; font-size:13px; border-bottom:1px solid #444; padding-bottom:6px; margin-bottom:6px;">
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">X</span><br><span id="pl_disp_x" style="color:var(--secondary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Y</span><br><span id="pl_disp_y" style="color:var(--secondary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Z</span><br><span id="pl_disp_z" style="color:var(--secondary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Pitch</span><br><span id="pl_disp_a" style="color:var(--secondary); font-weight:bold;">0.0&deg;</span></div>
+        </div>
+        <div style="display:flex; gap:4px; font-family:monospace; font-size:12px; border-bottom:1px solid #444; padding-bottom:6px; margin-bottom:6px;">
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Roll</span><br><span id="pl_disp_r" style="color:var(--secondary); font-weight:bold;">0.0&deg;</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Pitch</span><br><span id="pl_disp_p" style="color:var(--secondary); font-weight:bold;">0.0&deg;</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Yaw</span><br><span id="pl_disp_yaw" style="color:var(--secondary); font-weight:bold;">0.0&deg;</span></div>
+        </div>
+        <!-- Actual Section -->
+        <div style="font-size:10px; font-weight:800; color:var(--primary); margin-bottom:4px; display:flex; justify-content:space-between;">
+           <span>GERÇEK KONUM (ANLIK)</span>
+           <span style="color:#666; font-size:9px;">SPI/SENSÖR</span>
+        </div>
+        <div style="display:flex; gap:4px; font-family:monospace; font-size:13px;">
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">X</span><br><span id="act_disp_x" style="color:var(--primary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Y</span><br><span id="act_disp_y" style="color:var(--primary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Z</span><br><span id="act_disp_z" style="color:var(--primary); font-weight:bold;">0.0</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Pitch</span><br><span id="act_disp_a" style="color:var(--primary); font-weight:bold;">0.0&deg;</span></div>
+        </div>
+        <div style="display:flex; gap:4px; font-family:monospace; font-size:12px;">
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Roll</span><br><span id="act_disp_r" style="color:var(--primary); font-weight:bold;">0.0&deg;</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Pitch</span><br><span id="act_disp_p" style="color:var(--primary); font-weight:bold;">0.0&deg;</span></div>
+          <div style="flex:1; text-align:center;"><span style="font-size:9px; color:#888;">Yaw</span><br><span id="act_disp_yaw" style="color:var(--primary); font-weight:bold;">0.0&deg;</span></div>
+        </div>
+        <div class="sidebar-torque-summary">
+          <span>Torque</span>
+          <strong>Üst canlı kartta</strong>
+          <button class="sidebar-mini-icon-btn" onclick="kin3d_openTorqueInfo()" title="Tork detayları" aria-label="Tork detayları"><span class="mini-icon icon-info" aria-hidden="true"></span></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab: Program -->
+    <div id="tab-program" class="tab-content sidebar-section">
+      <div class="side-section-head">
+        <div>
+          <div class="side-section-title">Program ve Yol</div>
+          <div class="side-section-note">Blok plan, çizgisel rota, SVG çizim ve 3D önizleme akışları.</div>
+        </div>
+      </div>
+      <div class="program-pipeline" aria-label="Program akışı">
+        <span>Kaynak</span><span>Yol</span><span>Önizleme</span><span>Kuyruk</span><span>Uygula</span>
+      </div>
+      <div class="sidebar-section-card">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="sidebar-btn btn-pri" style="flex:1; min-width:150px;" onclick="openMotionBlocksModal()">Hareket Planla (Blok)</button>
+        <button class="sidebar-btn btn-doc" style="flex:1; min-width:150px;" onclick="openMotionPlanModal()">Çizgisel Yol (Popup)</button>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+        <button class="sidebar-btn btn-neutral" style="flex:1; min-width:150px;" onclick="previewTrajectoryNow()">3D Önizlemeyi Yenile</button>
+        <button class="sidebar-btn btn-neutral" style="flex:1; min-width:150px;" onclick="previewIKMotion()">Rota Animasyonunu Oynat</button>
+        <button class="sidebar-btn btn-doc" style="flex:1; min-width:150px;" onclick="openJointTimelineModal()">Motor Grafikleri (7)</button>
+      </div>
+      <div id="traj_summary" style="margin-top:8px; font-size:11px; color:#9fb0bf;">Yol kuyruğu boş.</div>
+      </div>
+
+      <div id="svg_path_card" class="collapsible-tile expanded svg-workbench">
+        <div class="side-section-head">
+          <div>
+            <div class="side-section-title">SVG Yol Atölyesi</div>
+            <div class="side-section-note">Dosya seç, düzleme oturt, önizle ve yörünge kuyruğuna aktar.</div>
+          </div>
+          <button id="svg_card_toggle_btn" class="tile-toggle-btn" onclick="toggleSvgPathCard()" title="Daralt / Genişlet">▾</button>
+        </div>
+
+        <div id="svg_path_body">
+          <label class="svg-drop-card" for="svg_file_input">
+            <span class="svg-drop-icon">SVG</span>
+            <span class="svg-drop-copy">
+              <strong>SVG dosyası seç</strong>
+              <small>.svg veya image/svg+xml</small>
+            </span>
+          </label>
+          <input type="file" id="svg_file_input" accept=".svg,image/svg+xml" onchange="loadSvgFromFile(event)" class="visually-hidden-input">
+          <textarea id="svg_raw_input" class="svg-source-box" placeholder="İstersen SVG içeriğini buraya yapıştırabilirsin..."></textarea>
+
+          <div class="svg-field-grid">
+            <label class="side-field"><span>Düzlem</span><select id="svg_plane"><option value="XY">XY (Sabit Z)</option><option value="XZ">XZ (Sabit Y)</option><option value="YZ">YZ (Sabit X)</option></select></label>
+            <label class="side-field"><span>Örnekleme</span><input type="number" id="svg_step" class="coord-input" value="4" min="0.5" step="0.5"></label>
+            <label class="side-field"><span>Ölçek</span><input type="number" id="svg_scale" class="coord-input" value="1" min="0.01" step="0.01"></label>
+            <label class="side-field"><span>Döndürme</span><input type="number" id="svg_rotate_deg" class="coord-input" value="0" step="1"></label>
+            <label class="side-field"><span>Ofset X</span><input type="number" id="svg_off_x" class="coord-input" value="300" step="1"></label>
+            <label class="side-field"><span>Ofset Y</span><input type="number" id="svg_off_y" class="coord-input" value="0" step="1"></label>
+            <label class="side-field"><span>Ofset Z</span><input type="number" id="svg_off_z" class="coord-input" value="250" step="1"></label>
+            <label class="side-field"><span>Nokta Süresi</span><input type="number" id="svg_point_time" class="coord-input" value="80" min="1" step="1"></label>
+            <label class="side-field"><span>Çizim Z</span><input type="number" id="svg_draw_level" class="coord-input" value="250" step="1"></label>
+            <label class="side-field"><span>Güvenli Z</span><input type="number" id="svg_safe_level" class="coord-input" value="300" step="1"></label>
+          </div>
+
+          <div class="sidebar-check-grid">
+            <label><input type="checkbox" id="svg_flip_y" checked> Y eksenini tersle</label>
+            <label><input type="checkbox" id="svg_center_origin" checked> Geometriyi merkeze al</label>
+            <label><input type="checkbox" id="svg_append_mode"> Mevcut yola ekle</label>
+          </div>
+
+          <div class="sidebar-action-stack">
+            <button class="sidebar-btn btn-doc" onclick="generateSvgPath()">SVG'den Yol Üret</button>
+            <button class="sidebar-btn btn-pri" onclick="applySvgPathToTrajectory()">Yolu Kuyruğa Aktar</button>
+            <button class="sidebar-btn btn-out" onclick="clearSvgPathState()">SVG Yolunu Temizle</button>
+          </div>
+          <div id="svg_path_status" class="side-status-note">SVG yolu henüz üretilmedi.</div>
+          <div id="svg_path_preview" class="traj-dash-list svg-preview-box"></div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End Right Sidebar -->
+
+</div> <!-- End Grid -->
+
+<!-- Debug Modal -->
+<div id="debugModal" class="modal">
+  <div class="modal-content" style="width:92vw; max-width:1200px; height:92vh; padding:12px;">
+    <span class="close-btn" onclick="closeDebugModal()">&times;</span>
+    <div class="card-title" style="margin-bottom:8px;">System Debug</div>
+    <iframe id="debugFrame" src="about:blank" title="System Debug"
+            style="width:100%; height:calc(100% - 42px); border:1px solid var(--surface-var); border-radius:10px; background:var(--bg);"></iframe>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content settings-modal-content">
+    <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
+    <div class="card-title"><span>Ayarlar</span><small id="settings-subtitle">Kontrol merkezi</small></div>
+    <div class="settings-tab-headers">
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-general" onclick="switchSettingsTab('settings-tab-general', this)">Genel</button>
+      <button class="settings-tab-btn active" data-settings-tab="settings-tab-ui" onclick="switchSettingsTab('settings-tab-ui', this)">Arayüz</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-security" onclick="switchSettingsTab('settings-tab-security', this)">Güvenlik</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-profile" onclick="switchSettingsTab('settings-tab-profile', this)">Profil Yönetimi</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-services" onclick="switchSettingsTab('settings-tab-services', this)">Sistem Servisleri</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-net" onclick="switchSettingsTab('settings-tab-net', this)">Ağ</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-terminal" onclick="switchSettingsTab('settings-tab-terminal', this)">Terminal ve Shell</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-files" onclick="switchSettingsTab('settings-tab-files', this)">Dosya Yönetimi</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-robot" onclick="switchSettingsTab('settings-tab-robot', this)">Robot Kontrol</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-3d" onclick="switchSettingsTab('settings-tab-3d', this)">3D Görünüm</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-comms" onclick="switchSettingsTab('settings-tab-comms', this)">İletişim</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-perf" onclick="switchSettingsTab('settings-tab-perf', this)">Performans</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-update" onclick="switchSettingsTab('settings-tab-update', this)">Güncelleme</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-storage" onclick="switchSettingsTab('settings-tab-storage', this)">Depolama ve Loglar</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-devs" onclick="switchSettingsTab('settings-tab-devs', this)">Bağlı Cihazlar</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-ai" onclick="switchSettingsTab('settings-tab-ai', this)">AI Yönetimi</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-devtools" onclick="switchSettingsTab('settings-tab-devtools', this)">Geliştirici</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-prefs" onclick="switchSettingsTab('settings-tab-prefs', this)">Tercihler</button>
+      <button class="settings-tab-btn" data-settings-tab="settings-tab-about" onclick="switchSettingsTab('settings-tab-about', this)">Hakkında</button>
+    </div>
+    <div id="settings-subnav" class="settings-subnav" aria-label="Ayar alt kategorileri"></div>
+    <div class="settings-content-shell">
+      <div id="settings-tab-general" class="settings-tab-content"><div id="settings-tab-general-body"></div></div>
+      <div id="settings-tab-ui" class="settings-tab-content active"><div id="settings-tab-ui-body"></div></div>
+      <div id="settings-tab-security" class="settings-tab-content"><div id="settings-tab-security-body"></div></div>
+      <div id="settings-tab-profile" class="settings-tab-content"><div id="settings-tab-profile-body"></div></div>
+      <div id="settings-tab-3d" class="settings-tab-content"><div id="settings-tab-3d-body"></div></div>
+      <div id="settings-tab-comms" class="settings-tab-content">
+        <div class="settings-two-col">
+          <div class="settings-card">
+            <div class="settings-card-iconline"><img src="/assets/icons/SPI-LOGO.svg" class="settings-logo-img" alt="SPI"><span>SPI Taşıma</span></div>
+            <div>Seri, SPI ve görevler arası köprüleme tanıları burada toplanacak.</div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-iconline"><img src="/assets/icons/ESPNOW_LOGO_WIDE.svg" class="settings-logo-img settings-logo-wide" alt="ESPNOW"><span>ESPNOW</span></div>
+            <div>ESPNOW profil ve eşleştirme ayarları bu alana eklenecek.</div>
+          </div>
+        </div>
+      </div>
+      <div id="settings-tab-net" class="settings-tab-content"><div id="settings-tab-net-body"></div></div>
+      <div id="settings-tab-terminal" class="settings-tab-content"><div id="settings-tab-terminal-body"></div></div>
+      <div id="settings-tab-services" class="settings-tab-content"><div id="settings-tab-services-body"></div></div>
+      <div id="settings-tab-files" class="settings-tab-content"><div id="settings-tab-files-body"></div></div>
+      <div id="settings-tab-robot" class="settings-tab-content"><div id="settings-tab-robot-body"></div></div>
+      <div id="settings-tab-perf" class="settings-tab-content"><div id="settings-tab-perf-body"></div></div>
+      <div id="settings-tab-update" class="settings-tab-content"><div id="settings-tab-update-body"></div></div>
+      <div id="settings-tab-storage" class="settings-tab-content"><div id="settings-tab-storage-body"></div></div>
+      <div id="settings-tab-prefs" class="settings-tab-content"><div id="settings-tab-prefs-body"></div></div>
+      <div id="settings-tab-devs" class="settings-tab-content"><div id="settings-tab-devs-body"></div></div>
+      <div id="settings-tab-ai" class="settings-tab-content"><div id="settings-tab-ai-body"></div></div>
+      <div id="settings-tab-devtools" class="settings-tab-content"><div id="settings-tab-devtools-body"></div></div>
+      <div id="settings-tab-about" class="settings-tab-content">
+        <div id="settings-about-body" class="settings-empty">Hakkında bilgisi yükleniyor...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SVG Viewer Modal -->
+<div id="svgModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeSvg()">&times;</span>
+    <div class="card-title" id="svgTitle">Diagram Viewer</div>
+    <div id="svgFrame" class="svg-container"></div>
+  </div>
+</div>
+
+<!-- WiFi Setup Modal -->
+<div id="wifiModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
+    <span class="close-btn" onclick="closeWifiSetup()">&times;</span>
+    <div class="card-title">WiFi Bağlantı Kurulumu</div>
+    <div style="margin-top:15px;">
+      <button onclick="scanWifi()" class="btn" style="width:100%; background:var(--secondary); margin-bottom:15px; color:#121212;">Ağları Tara</button>
+      <div id="wifi-list" style="max-height:200px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:15px; padding:5px;">
+        <div style="padding:10px; color:#888; text-align:center;">Henüz tarama yapılmadı.</div>
+      </div>
+      <input type="text" id="wifi-ssid" placeholder="Ağ Adı (SSID)" class="coord-input" style="width:100% !important; margin-bottom:10px !important; text-align:left !important;">
+      <input type="password" id="wifi-pass" placeholder="Şifre" class="coord-input" style="width:100% !important; margin-bottom:15px !important; text-align:left !important;">
+      <button onclick="connectToWifi()" id="btn-wifi-connect" class="btn" style="width:100%; background:var(--primary); color:#121212;">Bağlan ve Yeniden Başlat</button>
+      <div id="wifi-status" style="margin-top:10px; font-size:12px; text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PID Optimizasyon Modal -->
+<div id="pidOptModal" class="modal">
+  <div class="modal-content pid-opt-modal-content">
+    <span class="close-btn" onclick="closePIDOptModal()">&times;</span>
+    <div class="card-title">PID Optimizasyon</div>
+    <div class="pid-opt-toolbar">
+      <div class="pid-opt-note">ESP32-S3 canlı veri akışı: enkoder ham veri + turret dönüşümü (error / konum / hız)</div>
+      <button class="sidebar-btn btn-neutral pid-opt-clear-btn" onclick="clearPIDOptData()">Grafikleri Temizle</button>
+    </div>
+    <div class="pid-opt-divider"></div>
+    <div class="pid-opt-live-row">
+      <div class="pid-opt-live-item">
+        <span>Motorlara Gönderilen Hız (PID OUT)</span>
+        <strong id="pidOptMotorCmdSpeed">--</strong>
+        <canvas id="pidOptLiveCmdSpeedChart" class="pid-opt-live-canvas"></canvas>
+      </div>
+      <div class="pid-opt-live-item">
+        <span>Turret Referans Konum</span>
+        <strong id="pidOptTurretRefPos">--</strong>
+        <canvas id="pidOptLiveTurretRefChart" class="pid-opt-live-canvas"></canvas>
+      </div>
+      <div class="pid-opt-live-item">
+        <span>Enkoder Anlık Konum</span>
+        <strong id="pidOptEncoderPos">--</strong>
+        <canvas id="pidOptLiveEncoderPosChart" class="pid-opt-live-canvas"></canvas>
+      </div>
+    </div>
+    <div class="pid-opt-grid" style="margin-top:15px;">
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Enkoder Error (°)</div>
+        <canvas id="pidOptChartEncoderError" class="pid-opt-canvas"></canvas>
+      </div>
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Enkoder Konum (°)</div>
+        <canvas id="pidOptChartEncoderPos" class="pid-opt-canvas"></canvas>
+      </div>
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Enkoder Hız (°/s)</div>
+        <canvas id="pidOptChartEncoderSpeed" class="pid-opt-canvas"></canvas>
+      </div>
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Turret Error (°)</div>
+        <canvas id="pidOptChartTurretError" class="pid-opt-canvas"></canvas>
+      </div>
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Turret Konum (°)</div>
+        <canvas id="pidOptChartTurretPos" class="pid-opt-canvas"></canvas>
+      </div>
+      <div class="pid-opt-card">
+        <div class="pid-opt-chart-title">Turret Hız (°/s)</div>
+        <canvas id="pidOptChartTurretSpeed" class="pid-opt-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hareket Planlama Modal -->
+<div id="motionPlanModal" class="modal">
+  <div class="modal-content" style="max-width:560px; height:auto; min-height:0; max-height:90vh; text-align:left;">
+    <span class="close-btn" onclick="closeMotionPlanModal()">&times;</span>
+    <div class="card-title">Çizgisel Hareket Planlama (MoveL)</div>
+    <p style="font-size:12px; color:#b7c0c8; margin-top:0;">Başlangıç ve bitiş koordinatları arasında lineer nokta seti üretir. Üretilen noktalar mevcut yol kuyruğuna eklenebilir.</p>
+    <div class="motion-plan-grid">
+      <div style="grid-column:1/3; font-size:12px; font-weight:700; color:var(--primary);">Başlangıç</div>
+      <div><span style="font-size:11px;">X1</span><input type="number" id="ml_x1" class="coord-input" value="300" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Y1</span><input type="number" id="ml_y1" class="coord-input" value="0" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Z1</span><input type="number" id="ml_z1" class="coord-input" value="250" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Süre/Nokta (ms)</span><input type="number" id="ml_t" class="coord-input" value="120" min="1" step="1" style="width:100% !important;"></div>
+      <div style="grid-column:1/3; font-size:12px; font-weight:700; color:var(--primary); margin-top:6px;">Bitiş</div>
+      <div><span style="font-size:11px;">X2</span><input type="number" id="ml_x2" class="coord-input" value="360" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Y2</span><input type="number" id="ml_y2" class="coord-input" value="0" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Z2</span><input type="number" id="ml_z2" class="coord-input" value="250" step="1" style="width:100% !important;"></div>
+      <div><span style="font-size:11px;">Nokta Sayısı</span><input type="number" id="ml_points" class="coord-input" value="25" min="2" step="1" style="width:100% !important;"></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button class="sidebar-btn btn-neutral" style="flex:1;" onclick="setLinearStartFromIK()">Başlangıç = Hedef Girdisi</button>
+      <button class="sidebar-btn btn-neutral" style="flex:1;" onclick="setLinearEndFromIK()">Bitiş = Hedef Girdisi</button>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="sidebar-btn btn-doc" style="flex:1;" onclick="generateLinearTrajectoryFromModal(false)">Yolu Değiştir (Replace)</button>
+      <button class="sidebar-btn btn-pri" style="flex:1;" onclick="generateLinearTrajectoryFromModal(true)">Yola Ekle (Append)</button>
+    </div>
+    <div id="motion_plan_status" style="margin-top:8px; font-size:12px; color:#9fb0bf;"></div>
+  </div>
+</div>
+
+<!-- Motor Aci - Zaman Grafikleri Modal -->
+<div id="jointTimelineModal" class="modal">
+  <div class="modal-content joint-timeline-modal">
+    <span class="close-btn" onclick="closeJointTimelineModal()">&times;</span>
+    <div class="card-title">Motor Açı Grafikleri (7 Eksen)</div>
+    <p id="joint_timeline_info" style="font-size:12px; color:#b7c0c8; margin-top:0; text-align:left;">Önizleme yolundan üretilen eklem-zaman grafikleri.</p>
+    <div class="joint-timeline-grid">
+      <div class="joint-time-card"><div class="joint-time-title">Turret</div><canvas id="jointTimeChart0" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J2</div><canvas id="jointTimeChart1" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J3</div><canvas id="jointTimeChart2" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J4</div><canvas id="jointTimeChart3" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J5</div><canvas id="jointTimeChart4" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J6</div><canvas id="jointTimeChart5" class="joint-time-canvas"></canvas></div>
+      <div class="joint-time-card"><div class="joint-time-title">J7</div><canvas id="jointTimeChart6" class="joint-time-canvas"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Log Drawer -->
+<div id="mobile-log-drawer" class="mobile-log-drawer" aria-hidden="true">
+  <div class="mobile-log-sheet">
+    <div class="mobile-log-head">
+      <span>Terminal / Log</span>
+      <div style="display:flex; gap:6px;">
+        <button class="sidebar-btn btn-out mini-action-btn" onclick="clearConsoleLocal()">TEMİZLE</button>
+        <button class="sidebar-btn btn-neutral mini-action-btn" onclick="closeMobileLogDrawer()">KAPAT</button>
+      </div>
+    </div>
+    <textarea id="mobile-log-text" readonly class="mobile-log-textarea"></textarea>
+  </div>
+</div>
+
+<!-- Fullscreen File Manager Modal -->
+<div id="fileManagerModal" class="modal file-manager-modal" aria-hidden="true">
+  <div class="file-manager-content" oncontextmenu="return false;">
+    <div class="file-manager-head">
+      <div>
+        <div class="shell-fullscreen-title">MROS Dosya Yöneticisi</div>
+        <div id="file-manager-subtitle" class="shell-fullscreen-subtitle">/ESPUSER</div>
+      </div>
+      <div class="shell-fullscreen-actions">
+        <button class="sidebar-btn btn-doc mini-action-btn" type="button" onclick="fileManagerUpload()">YÜKLE</button>
+        <button class="sidebar-btn btn-doc mini-action-btn" type="button" onclick="fileManagerNewTextFile()">YENİ METİN</button>
+        <button class="sidebar-btn btn-neutral mini-action-btn" type="button" onclick="fileManagerToggleDownloader()">İNDİRİCİ</button>
+        <button class="sidebar-btn btn-neutral mini-action-btn" type="button" onclick="fileManagerNewFolder()">KLASÖR</button>
+        <button class="sidebar-btn btn-neutral mini-action-btn" type="button" onclick="fileManagerRefresh()">YENİLE</button>
+        <button class="sidebar-btn btn-out mini-action-btn" type="button" onclick="closeFileManager()">KAPAT</button>
+      </div>
+    </div>
+    <div class="file-manager-toolbar">
+      <div id="file-manager-breadcrumb" class="file-manager-breadcrumb"></div>
+      <div class="file-manager-view-tabs" role="tablist" aria-label="Dosya görünümü">
+        <button id="fm-view-list" type="button" onclick="fileManagerSetView('list')">LİSTE</button>
+        <button id="fm-view-grid" type="button" onclick="fileManagerSetView('grid')">GRID</button>
+        <button id="fm-view-detail" type="button" onclick="fileManagerSetView('detail')">AYRINTI</button>
+      </div>
+      <div class="file-manager-scale" role="group" aria-label="Dosya yöneticisi ölçeği">
+        <button type="button" onclick="fileManagerAdjustScale(-0.1)" title="Küçült">A-</button>
+        <span id="fm-scale-value">100%</span>
+        <button type="button" onclick="fileManagerAdjustScale(0.1)" title="Büyüt">A+</button>
+      </div>
+    </div>
+    <div id="file-manager-selectionbar" class="file-manager-selectionbar" aria-live="polite"></div>
+    <section id="file-manager-transfer-queue" class="file-manager-transfer-queue" aria-label="Transfer kuyruğu"></section>
+    <section id="file-manager-downloader" class="file-manager-downloader" aria-label="URL indirici">
+      <div class="fm-downloader-head">
+        <div>
+          <div class="fm-downloader-title">URL İndirici</div>
+          <div class="fm-downloader-subtitle">Bağlantı, dosya boyutu ve boş alan kontrol edilir; işlem cihaz üzerinde devam eder.</div>
+        </div>
+        <button id="fm-downloader-hide" type="button" onclick="fileManagerToggleDownloader(false)">GİZLE</button>
+      </div>
+      <div class="fm-downloader-form">
+        <label>URL<input id="fm-download-url" type="url" placeholder="https://.../firmware.bin" autocomplete="off"></label>
+        <label>Hedef<input id="fm-download-target" type="text" placeholder="auto veya /ESPUSER/downloads/dosya.bin" autocomplete="off"></label>
+        <div class="fm-downloader-actions">
+          <button type="button" onclick="fileManagerDownloadToCurrentDir()">BU DİZİNE İNDİR</button>
+          <button type="button" onclick="fileManagerCheckDownload()">KONTROL ET</button>
+          <button type="button" onclick="fileManagerStartDownload()">BAŞLAT</button>
+        </div>
+      </div>
+      <div class="fm-download-progress">
+        <div class="fm-download-progress-head"><span id="fm-download-phase">Hazır</span><span id="fm-download-size">--</span></div>
+        <div class="fm-download-bar"><div id="fm-download-bar-fill"></div></div>
+        <div id="fm-download-meta" class="fm-download-meta">İndirilecek dosya henüz seçilmedi.</div>
+      </div>
+    </section>
+    <section id="file-manager-editor" class="file-manager-editor" aria-label="Dosya metin editörü"></section>
+    <div class="file-manager-main">
+      <div id="file-manager-body" class="file-manager-body"></div>
+      <aside id="file-manager-detail" class="file-manager-detail"></aside>
+    </div>
+    <div class="shell-fullscreen-foot">
+      <span id="file-manager-status">Hazır</span>
+      <span>Sağ tık: operasyonlar | Ctrl/Shift: çoklu seçim | Enter: aç/indir</span>
+    </div>
+    <input id="file-manager-upload-input" type="file" multiple style="display:none" />
+    <div id="file-manager-context" class="file-manager-context"></div>
+  </div>
+</div>
+
+<!-- Fullscreen Web Shell Modal -->
+<div id="shellFullscreenModal" class="modal shell-fullscreen-modal" aria-hidden="true">
+  <div class="shell-fullscreen-content">
+    <div class="shell-fullscreen-head">
+      <div>
+        <div class="shell-fullscreen-title">MROS Web Terminal</div>
+        <div class="shell-fullscreen-subtitle">Doğrudan yaz, Enter ile çalıştır, Tab ile tamamla, Ctrl+C/Ctrl+V destekli.</div>
+      </div>
+      <div class="shell-fullscreen-actions">
+        <button id="terminal-split-btn" class="sidebar-btn btn-doc mini-action-btn" type="button" onclick="shellFullscreenSplit()">2'YE BÖL</button>
+        <button id="terminal-close-pane-btn" class="sidebar-btn btn-neutral mini-action-btn" type="button" onclick="shellFullscreenClosePane()">PANE KAPAT</button>
+        <button id="terminal-refresh-btn" class="sidebar-btn btn-doc mini-action-btn" type="button" onclick="shellRefreshState()">YENİLE</button>
+        <button id="terminal-kill-btn" class="sidebar-btn btn-out mini-action-btn" type="button" onclick="shellKillProcess()">SÜRECİ ÖLDÜR</button>
+        <button class="sidebar-btn btn-out mini-action-btn" type="button" onclick="clearConsoleLocal()">TEMİZLE</button>
+        <button class="sidebar-btn btn-neutral mini-action-btn" type="button" onclick="closeShellFullscreen()">KAPAT</button>
+      </div>
+    </div>
+    <div id="shell-fullscreen-text" class="console-terminal shell-fullscreen-terminal" tabindex="0" spellcheck="false"></div>
+    <div class="shell-fullscreen-foot">
+      <span id="shell-fullscreen-status">Hazır</span>
+      <span>Esc: kapat | Ctrl+L: temizle | Ctrl+C: komutu kes/temizle</span>
+    </div>
+  </div>
+</div>
+
+<!-- Blok Tabanli Hareket Planlama Modal -->
+<div id="motionBlocksModal" class="modal" data-lazy-panel="motion-blocks"></div>
+
+<script src="/js/core/ws-client.js?v=20260516_perf_budget_r1"></script>
+<script src="/js/ik/ik-state.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-inputs.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-modes.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-solver.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-seed-strategy.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-planner.js?v=20260422_transport_r1"></script>
+<script src="/js/ik/ik-transport.js?v=20260422_transport_r1"></script>
+<script src="/js/panels/coord-panel.js?v=20260422_transport_r1"></script>
+<script src="/js/panels/joint-panel.js?v=20260422_transport_r1"></script>
+<script src="/js/panels/plan-panel.js?v=20260422_transport_r1"></script>
+<script src="/js/panels/modal-templates.js?v=20260422_transport_r1"></script>
+<script src="/js/panels/shell-panel.js?v=20260516_shell_prefix_fix_r1"></script>
+<script src="/js/panels/file-manager.js?v=20260515_ui_settings_r1"></script>
+<script src="/js/panels/settings-panel.js?v=20260515_ui_settings_r1"></script>
+<script src="/js/panels/ux-workspace.js?v=20260430_ui_comments_r1"></script>
+<script src="/js/bootstrap/app-entry.js?v=20260510_ui_auth_wifi_r1"></script>
+</body></html>
+
+

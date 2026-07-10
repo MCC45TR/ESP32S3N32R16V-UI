@@ -1,0 +1,24 @@
+{
+  "schema": "mros.bearing_runtime_loads.v1",
+  "description": "Runtime bearing loads generated from CAD/dynamics, force sensors, or manual engineering tests. Placement ids must match SKF bearing_health placements.",
+  "rows": [
+    {
+      "placement": "J1-BRG-A",
+      "radial_load_N": 120.0,
+      "axial_load_N": 20.0,
+      "equivalent_load_N": 0.0,
+      "estimated_static_load_n": 140.0,
+      "source": "cad_static_seed",
+      "ttl_ms": 2000
+    },
+    {
+      "placement": "J1-BRG-B",
+      "radial_load_N": 120.0,
+      "axial_load_N": 20.0,
+      "equivalent_load_N": 0.0,
+      "estimated_static_load_n": 140.0,
+      "source": "cad_static_seed",
+      "ttl_ms": 2000
+    }
+  ]
+}

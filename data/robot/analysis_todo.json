@@ -1,0 +1,61 @@
+{
+  "schema": "mros.robot_mechanics.todo.v1",
+  "items": [
+    {
+      "id": "robot-cad-final-mechanical-review",
+      "severity": "warning",
+      "title": "Robot CAD tamamlaninca mekanik model dogrulanacak",
+      "message": "Parca malzemeleri, hacimden turetilen kutleler, elle girilen kutle merkezleri, atalet tensorleri, rulman merkezleri ve yuk yollari final CAD sonrasi yeniden girilmeli ve dogrulanmali.",
+      "blocking_for_release": false
+    },
+    {
+      "id": "bearing-centers-local-frame-review",
+      "severity": "warning",
+      "title": "Rulman merkezleri eklem-local koordinatta dogrulanacak",
+      "message": "Her bearing_mount satiri ilgili joint/link frame icinde tanimlidir. Global koordinat girilmemeli.",
+      "blocking_for_release": false
+    },
+    {
+      "id": "material-design-allowables-review",
+      "severity": "warning",
+      "title": "Malzeme seed verileri tasarim allowables degildir",
+      "message": "CSV degerleri tipik seed veridir. Final tasarim icin sertifika, standart veya uretici datasheet degeri ile source_id guncellenmelidir.",
+      "blocking_for_release": false
+    },
+    {
+      "id": "actuator-thermal-current-derating-review",
+      "severity": "warning",
+      "title": "Aktuator derating seed modeli gercek motor verisiyle dogrulanacak",
+      "message": "actuator_derating_profiles.csv su an seed motor/surucu limitleri icerir. Final robot icin motor hiz-tork egrileri, surucu akim foldback davranisi, reducer verimi ve termal soak testleriyle guncellenmelidir.",
+      "blocking_for_release": false
+    },
+    {
+      "id": "structural-screening-fem-review",
+      "severity": "warning",
+      "title": "Parca gerilme/yorulma screening modeli FEM yerine gecmez",
+      "message": "Tarayici structuralChecks[] sonucu bbox dikdortgen kesit, family bazli seed design policy, sicaklik derating ve link-origin moment kolu ile erken uyari uretir. Final CAD tamamlaninca gercek kesitler, baglanti noktalar, temas yukleri, yorulma duty cycle, stress concentration ve FEM/test validasyonu eklenmelidir.",
+      "blocking_for_release": false
+    },
+    {
+      "id": "prr-geometry-finalization",
+      "severity": "blocking",
+      "title": "PRR SCARA geometri ve limitleri olculmeden proses hareketi release edilemez",
+      "message": "prr_scara_geometry_seed.csv icinde link uzunluklari, Z stroku, TCP offsetleri, mutlak encoder sifirlari ve soft limitler TBD durumundadir. FK/IK, feed clamp ve collision modeli bu veriler olmadan sadece seed seviyesindedir.",
+      "blocking_for_release": true
+    },
+    {
+      "id": "process-vendor-chart-wps-required",
+      "severity": "blocking",
+      "title": "Kaynak/plazma/oksi-yakit icin WPS veya uretici chart zorunlu",
+      "message": "robot_process_feed_modes.csv ve recipe template satirlari sadece seed sinirlaridir. Gercek proses enerjisi icin kaynakta WPS, plazmada makine/torc/sarf chart satiri, oksi-yakitta tip/gaz/basinc chart satiri baglanmalidir.",
+      "blocking_for_release": true
+    },
+    {
+      "id": "process-interlocks-hil-required",
+      "severity": "blocking",
+      "title": "Proses interlocklari HIL ile kanitlanmadan enerji acilamaz",
+      "message": "E-stop, homing, CAN heartbeat, following error, gaz/arc/THC/preheat/flashback/fire-watch kapilari robot_process_interlocks.csv icinde tanimlidir ancak gercek IO ve HIL kaniti gerektirir.",
+      "blocking_for_release": true
+    }
+  ]
+}

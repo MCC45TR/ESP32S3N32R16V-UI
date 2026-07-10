@@ -1,0 +1,50 @@
+{
+  "schema": "mros.robot_runtime_loads.v1",
+  "source": "web_cad_force_snapshot",
+  "description": "Runtime structural checks generated from the browser CAD/dynamics snapshot. Rows are TTL based and feed 'robot structural' plus the structural section of 'robot health'.",
+  "worstStructuralStatus": "LOW_MARGIN",
+  "structuralChecks": [
+    {
+      "part_id": "arm2",
+      "link_frame_id": "J2_SHOULDER",
+      "material_id": "AL7075_T6",
+      "force_n": 420.0,
+      "moment_about_link_origin_nm": 36.0,
+      "von_mises_stress_mpa": 84.0,
+      "bending_stress_mpa": 78.0,
+      "shear_stress_mpa": 8.0,
+      "fatigue_alternating_stress_mpa": 80.0,
+      "design_yield_safety_factor": 2.15,
+      "design_shear_safety_factor": 3.40,
+      "design_ultimate_safety_factor": 2.80,
+      "design_fatigue_safety_factor": 1.42,
+      "design_policy_id": "aluminum_seed",
+      "structural_temperature_factor": 0.96,
+      "structural_reference_temp_c": 76.0,
+      "status": "OK",
+      "source": "web_cad_force_snapshot",
+      "ttl_ms": 5000
+    },
+    {
+      "part_id": "arm3",
+      "link_frame_id": "J3_ELBOW",
+      "material_id": "AL6061_T6",
+      "force_n": 390.0,
+      "moment_about_link_origin_nm": 44.0,
+      "von_mises_stress_mpa": 102.0,
+      "bending_stress_mpa": 96.0,
+      "shear_stress_mpa": 7.5,
+      "fatigue_alternating_stress_mpa": 98.0,
+      "design_yield_safety_factor": 1.62,
+      "design_shear_safety_factor": 2.85,
+      "design_ultimate_safety_factor": 2.18,
+      "design_fatigue_safety_factor": 1.18,
+      "design_policy_id": "aluminum_seed",
+      "structural_temperature_factor": 0.96,
+      "structural_reference_temp_c": 76.0,
+      "status": "LOW_MARGIN",
+      "source": "web_cad_force_snapshot",
+      "ttl_ms": 5000
+    }
+  ]
+}

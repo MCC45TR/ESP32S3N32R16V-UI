@@ -1,0 +1,14 @@
+part_id,source_frame,mass_kg,com_x_mm,com_y_mm,com_z_mm,Ixx_kg_m2,Ixy_kg_m2,Ixz_kg_m2,Iyy_kg_m2,Iyz_kg_m2,Izz_kg_m2,source,status,notes
+fixed_turret_body,J0_BASE,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+turret_holder,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+turret_carrier,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+turret_top_cover,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+planet_gear_1,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+planet_gear_2,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+planet_gear_3,J1_TURRET,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm1,J2_SHOULDER,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm2,J3_ELBOW,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm3,J4_WRIST_A,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm4,J5_WRIST_B,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm5,J6_WRIST_C,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.
+arm6,J7_TOOL,0,0,0,0,0,0,0,0,0,0,MROS_TODO,needs_cad_measure,Fill from final CAD mass properties or browser mesh estimation.

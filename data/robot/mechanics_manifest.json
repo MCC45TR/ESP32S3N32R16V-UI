@@ -1,0 +1,52 @@
+{
+  "schema": "mros.robot_mechanics.v1",
+  "robot": "MROS-DEUSCARA",
+  "coordinate_policy": {
+    "bearing_mounts": "bearing coordinates are local to their linked joint/link frame, not global",
+    "part_mass_properties": "center of mass and inertia tensor are expressed in the part/link local frame unless source_frame says otherwise",
+    "units": "mm, kg, kg*m^2, N, Nm"
+  },
+  "files": {
+    "part_material_assignments": "/robot-data/part_material_assignments.csv",
+    "part_mass_properties": "/robot-data/part_mass_properties.csv",
+    "bearing_mounts": "/robot-data/bearing_mounts.csv",
+    "force_snapshot_example": "/robot-data/force_snapshot.example.json",
+    "bearing_load_inputs_example": "/robot-data/bearing_load_inputs.example.json",
+    "actuator_load_inputs_example": "/robot-data/actuator_load_inputs.example.json",
+    "structural_load_inputs_example": "/robot-data/structural_load_inputs.example.json",
+    "link_frames": "/robot-data/link_frames.csv",
+    "joint_actuator_profiles": "/robot-data/joint_actuator_profiles.csv",
+    "atar_m_series_actuator_specs": "/robot-data/atar_m_series_actuator_specs.csv",
+    "prr_scara_axis_map": "/robot-data/prr_scara_axis_map.csv",
+    "prr_scara_geometry_seed": "/robot-data/prr_scara_geometry_seed.csv",
+    "canopen_actuator_bus_map": "/robot-data/canopen_actuator_bus_map.csv",
+    "robot_process_feed_modes": "/robot-data/robot_process_feed_modes.csv",
+    "robot_process_recipe_templates": "/robot-data/robot_process_recipe_templates.csv",
+    "robot_process_interlocks": "/robot-data/robot_process_interlocks.csv",
+    "robot_process_validation_matrix": "/robot-data/robot_process_validation_matrix.csv",
+    "robot_data_sources": "/robot-data/robot_data_sources.csv",
+    "process_recipe_example": "/robot-data/process_recipe.example.json",
+    "actuator_derating_profiles": "/robot-data/actuator_derating_profiles.csv",
+    "structural_design_policies": "/robot-data/structural_design_policies.csv",
+    "payload_profiles": "/robot-data/payload_profiles.csv",
+    "analysis_todo": "/robot-data/analysis_todo.json"
+  },
+  "runtime_targets": {
+    "static_force_engine": "bearing-pair force/moment equilibrium seed",
+    "dynamic_force_engine": "finite-difference COM acceleration seed",
+    "bearing_health_bridge": "firmware TTL bridge for browser bearingLoads and robot bearing health",
+    "actuator_derating_engine": "motor current, controller temperature, motor temperature, and bus-voltage derating seed",
+    "actuator_health_bridge": "firmware TTL bridge for browser jointLoads and robot actuator health",
+    "structural_allowables_engine": "browser-side seed design allowables and fatigue screening from material family policies",
+    "structural_health_bridge": "firmware TTL bridge for browser structuralChecks and robot structural health"
+    ,
+    "process_feed_planner": "browser-side process mode feed clamp and safety requirement seed",
+    "prr_axis_contract": "3-axis PRR SCARA actuator and CANopen seed map for Teensy motion ownership"
+  },
+  "runtime_overrides": {
+    "browser_material_overrides": "CAD context-menu selections are stored in browser localStorage as mros_kin3d_material_overrides and do not rewrite CSV defaults",
+    "browser_payload_profile": "Active payload is stored in browser localStorage as mros_kin3d_active_payload and can be changed with window.kin3d_setActivePayload(payload_id)",
+    "browser_actuator_telemetry": "Actuator thermal/current telemetry is stored in browser localStorage as mros_kin3d_actuator_telemetry and can be changed with window.kin3d_setActuatorTelemetry(joint_id, telemetry)",
+    "browser_process_mode": "Active process mode is stored in browser localStorage as mros_kin3d_active_process_mode and can be changed with window.kin3d_setActiveProcessMode(mode_id)"
+  }
+}

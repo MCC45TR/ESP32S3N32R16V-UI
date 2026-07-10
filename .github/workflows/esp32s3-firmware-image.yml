@@ -1,0 +1,434 @@
+name: MROS ESP32-S3 Firmware Release
+
+run-name: ESP32-S3 ${{ inputs.environment }} release by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: PlatformIO environment to build
+        required: true
+        default: s3_mros_hub_n32
+        type: choice
+        options:
+          - s3_mros_hub_n32
+          - s3_mros_hub_n16
+          - s3_mros_hub_n8
+          - s3_mros_hub_ddr_n32
+          - s3_mros_hub_ddr_n16
+          - s3_mros_hub_ddr_n8
+          - s3_mros_hub_n32_dbg
+          - s3_mros_hub_n16_dbg
+          - s3_mros_hub_n8_dbg
+          - s3_mros_hub_ddr_n32_dbg
+          - s3_mros_hub_ddr_n16_dbg
+          - s3_mros_hub_ddr_n8_dbg
+      artifact_prefix:
+        description: Firmware file name prefix
+        required: true
+        default: mros-deuscara-esp32s3
+        type: string
+      create_draft_release:
+        description: Create a draft GitHub Release with the firmware image
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  MROS_TARGET_NAME: ESP32-S3
+  MROS_VERSION_SOURCE: src/shell/mros_shell.h
+
+concurrency:
+  group: esp32s3-firmware-release-${{ github.ref }}-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  build-release:
+    name: Build and package ESP32-S3 firmware
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.platformio
+          key: platformio-esp32s3-${{ runner.os }}-${{ hashFiles('platformio.ini', 'partitions*.csv', 'sdkconfig.defaults*') }}
+          restore-keys: |
+            platformio-esp32s3-${{ runner.os }}-
+
+      - name: Install build tools
+        run: python -m pip install platformio==6.1.19 esptool==5.3.1
+
+      - name: Validate release profile
+        env:
+          CREATE_DRAFT_RELEASE: ${{ inputs.create_draft_release }}
+          PIO_ENV: ${{ inputs.environment }}
+        run: |
+          if [[ "$CREATE_DRAFT_RELEASE" == "true" && "$PIO_ENV" != "s3_mros_hub_n32" ]]; then
+            echo "::error title=Invalid release profile::Only the s3_mros_hub_n32 production profile may create a GitHub Release."
+            exit 1
+          fi
+
+      - name: Derive release metadata
+        id: meta
+        env:
+          ARTIFACT_PREFIX: ${{ inputs.artifact_prefix }}
+          PIO_ENV: ${{ inputs.environment }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          PARTITIONS = {
+              "N32R16": {
+                  "csv": "partitions-N32R16.csv",
+                  "app_offset": "0x120000",
+                  "flash_size": "32MB",
+                  "littlefs_offset": "0x720000",
+                  "target": "ESP32-S3 N32R16V",
+              },
+              "N16R8": {
+                  "csv": "partitions-N16R8.csv",
+                  "app_offset": "0xA0000",
+                  "flash_size": "16MB",
+                  "littlefs_offset": "0x5A0000",
+                  "target": "ESP32-S3 N16R8",
+              },
+              "N8R8": {
+                  "csv": "partitions-N8R8.csv",
+                  "app_offset": "0xA0000",
+                  "flash_size": "8MB",
+                  "littlefs_offset": "0x420000",
+                  "target": "ESP32-S3 N8R8",
+              },
+          }
+
+          def require_token(name: str, value: str) -> str:
+              if not re.fullmatch(r"[A-Za-z0-9._-]+", value or ""):
+                  raise SystemExit(f"::error title=Invalid {name}::Use only letters, numbers, dots, underscores, and hyphens.")
+              return value
+
+          env_name = os.environ["PIO_ENV"]
+          if "n32" in env_name:
+              partition_slug = "N32R16"
+          elif "n16" in env_name:
+              partition_slug = "N16R8"
+          elif "n8" in env_name:
+              partition_slug = "N8R8"
+          else:
+              raise SystemExit(f"::error title=Unknown partition profile::Cannot derive partition profile from {env_name}.")
+
+          version_source = Path(os.environ["MROS_VERSION_SOURCE"])
+          source_text = version_source.read_text(encoding="utf-8")
+          version_match = re.search(r'kShellVersion\s*=\s*"([^"]+)"', source_text)
+          raw_version = version_match.group(1) if version_match else f"git-{os.environ['GITHUB_SHA'][:7]}"
+
+          artifact_prefix = require_token("artifact prefix", os.environ["ARTIFACT_PREFIX"])
+          mros_version = require_token("MROS version", re.sub(r"[^A-Za-z0-9._-]+", "-", raw_version).strip("-"))
+          istanbul_now = datetime.now(ZoneInfo("Europe/Istanbul"))
+          utc_now = datetime.now(timezone.utc)
+          stamp = istanbul_now.strftime("%d_%m_%Y-%H_%M")
+          base_name = f"{artifact_prefix}-{partition_slug}-{stamp}-{mros_version}"
+          partition = PARTITIONS[partition_slug]
+
+          outputs = {
+              "app_offset": partition["app_offset"],
+              "base_name": base_name,
+              "built_at_istanbul": istanbul_now.isoformat(timespec="seconds"),
+              "built_at_utc": utc_now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "flash_size": partition["flash_size"],
+              "littlefs_offset": partition["littlefs_offset"],
+              "mros_version": mros_version,
+              "partition_csv": partition["csv"],
+              "partition_slug": partition_slug,
+              "release_tag": f"mros-esp32s3-{partition_slug}-{mros_version}-{stamp}",
+              "stamp": stamp,
+              "target_label": partition["target"],
+              "version_source": str(version_source),
+          }
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              for key, value in outputs.items():
+                  print(f"{key}={value}", file=handle)
+          PY
+
+      - name: Build firmware and filesystem
+        run: |
+          pio run -e "${{ inputs.environment }}"
+          pio run -d recovery_app -e recovery_s3
+          pio run -e "${{ inputs.environment }}" -t buildfs
+          mkdir -p ".pio/build/${{ inputs.environment }}/rec"
+          cp recovery_app/.pio/build/recovery_s3/firmware.bin \
+            ".pio/build/${{ inputs.environment }}/rec/MROS-RECOVERY-UPDATER.bin"
+
+      - name: Package release assets
+        id: package
+        env:
+          APP_OFFSET: ${{ steps.meta.outputs.app_offset }}
+          BASE_NAME: ${{ steps.meta.outputs.base_name }}
+          BUILT_AT_ISTANBUL: ${{ steps.meta.outputs.built_at_istanbul }}
+          BUILT_AT_UTC: ${{ steps.meta.outputs.built_at_utc }}
+          FLASH_SIZE: ${{ steps.meta.outputs.flash_size }}
+          LITTLEFS_OFFSET: ${{ steps.meta.outputs.littlefs_offset }}
+          MROS_VERSION: ${{ steps.meta.outputs.mros_version }}
+          PARTITION_CSV: ${{ steps.meta.outputs.partition_csv }}
+          PARTITION_SLUG: ${{ steps.meta.outputs.partition_slug }}
+          PIO_ENV: ${{ inputs.environment }}
+          TARGET_LABEL: ${{ steps.meta.outputs.target_label }}
+          VERSION_SOURCE: ${{ steps.meta.outputs.version_source }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          import shutil
+          import subprocess
+          import textwrap
+          from pathlib import Path
+
+          def copy_required(src: Path, dst: Path, title: str) -> None:
+              if not src.exists():
+                  raise SystemExit(f"::error title=Missing {title}::{src} was not produced by the build.")
+              shutil.copy2(src, dst)
+
+          def first_app_binary(build_dir: Path) -> Path:
+              excluded = {"bootloader.bin", "partitions.bin", "partition-table.bin", "ota_data_initial.bin", "littlefs.bin"}
+              candidates = sorted(path for path in build_dir.glob("*.bin") if path.name not in excluded)
+              if not candidates:
+                  raise SystemExit(f"::error title=Missing application image::No application .bin found in {build_dir}.")
+              return candidates[0]
+
+          def sha256_file(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          base_name = os.environ["BASE_NAME"]
+          build_dir = Path(".pio") / "build" / os.environ["PIO_ENV"]
+          package_dir = Path("dist") / base_name
+          package_dir.mkdir(parents=True, exist_ok=True)
+          if not build_dir.is_dir():
+              raise SystemExit(f"::error title=Missing build directory::{build_dir} was not created.")
+
+          names = {
+              "app": f"{base_name}.BIN",
+              "boot": f"{base_name}-bootloader.bin",
+              "partition_bin": f"{base_name}-{os.environ['PARTITION_SLUG']}-partition-table.bin",
+              "partition_csv": f"{base_name}-{os.environ['PARTITION_SLUG']}-{os.environ['PARTITION_CSV']}",
+              "ota": f"{base_name}-ota-data.bin",
+              "littlefs": f"{base_name}-littlefs.bin",
+              "recovery": f"{base_name}-recovery.bin",
+              "merged": f"{base_name}-full-flash.bin",
+          }
+
+          sources = {
+              "app": first_app_binary(build_dir),
+              "boot": build_dir / "bootloader" / "bootloader.bin",
+              "partition_bin": build_dir / "partition_table" / "partition-table.bin",
+              "partition_csv": Path(os.environ["PARTITION_CSV"]),
+              "ota": build_dir / "ota_data_initial.bin",
+              "littlefs": build_dir / "littlefs.bin",
+              "recovery": build_dir / "rec" / "MROS-RECOVERY-UPDATER.bin",
+          }
+          if not sources["boot"].exists():
+              sources["boot"] = build_dir / "bootloader.bin"
+          if not sources["partition_bin"].exists():
+              sources["partition_bin"] = build_dir / "partitions.bin"
+
+          required = ("app", "boot", "partition_bin", "partition_csv", "ota", "littlefs", "recovery")
+          for key in required:
+              copy_required(sources[key], package_dir / names[key], key)
+
+          flash_pairs = [
+              ("0x0", names["boot"]),
+              ("0x8000", names["partition_bin"]),
+              ("0xf000", names["ota"]),
+              ("0x20000", names["recovery"]),
+              (os.environ["APP_OFFSET"], names["app"]),
+              (os.environ["LITTLEFS_OFFSET"], names["littlefs"]),
+          ]
+
+          merge_cmd = [
+              "python", "-m", "esptool", "--chip", "esp32s3", "merge-bin",
+              "-o", str(package_dir / names["merged"]),
+              "--flash-mode", "dout",
+              "--flash-freq", "80m",
+              "--flash-size", os.environ["FLASH_SIZE"],
+          ]
+          for offset, filename in flash_pairs:
+              merge_cmd.extend([offset, str(package_dir / filename)])
+          subprocess.run(merge_cmd, check=True)
+
+          split_command = f"python -m esptool --chip esp32s3 -p <SERIAL_PORT> -b 3000000 --before default-reset --after hard-reset write-flash --flash-mode dout --flash-freq 80m --flash-size {os.environ['FLASH_SIZE']} " + " ".join(
+              f"{offset} {filename}" for offset, filename in flash_pairs
+          )
+          full_command = f"python -m esptool --chip esp32s3 -p <SERIAL_PORT> -b 3000000 --before default-reset --after hard-reset write-flash --flash-mode dout --flash-freq 80m --flash-size {os.environ['FLASH_SIZE']} 0x0 {names['merged']}"
+          dollar = "$"
+
+          (package_dir / "install-esp32s3.sh").write_text(textwrap.dedent(f"""\
+              #!/usr/bin/env bash
+              set -euo pipefail
+              if [[ $# -lt 1 ]]; then
+                echo "Usage: $0 <SERIAL_PORT> [BAUD]" >&2
+                exit 2
+              fi
+              PORT="$1"
+              BAUD="{dollar}{{2:-3000000}}"
+              python -m pip install esptool==5.3.1
+              python -m esptool --chip esp32s3 -p "$PORT" -b "$BAUD" --before default-reset --after hard-reset write-flash --flash-mode dout --flash-freq 80m --flash-size {os.environ['FLASH_SIZE']} 0x0 "{names['merged']}"
+              """), encoding="utf-8")
+          (package_dir / "install-esp32s3.sh").chmod(0o755)
+          (package_dir / "install-esp32s3.ps1").write_text(textwrap.dedent(f"""\
+              param(
+                [Parameter(Mandatory = $true)]
+                [string]$Port,
+                [int]$Baud = 3000000
+              )
+              $ErrorActionPreference = "Stop"
+              python -m pip install esptool==5.3.1
+              python -m esptool --chip esp32s3 -p $Port -b $Baud --before default-reset --after hard-reset write-flash --flash-mode dout --flash-freq 80m --flash-size {os.environ['FLASH_SIZE']} 0x0 {names['merged']}
+              """), encoding="utf-8")
+          split_lines = " \\\n  ".join(f"{offset} {filename}" for offset, filename in flash_pairs)
+          (package_dir / "flash-esp32s3.sh").write_text(textwrap.dedent(f"""\
+              #!/usr/bin/env bash
+              set -euo pipefail
+              if [[ $# -lt 1 ]]; then
+                echo "Usage: $0 <SERIAL_PORT> [BAUD]" >&2
+                exit 2
+              fi
+              PORT="$1"
+              BAUD="{dollar}{{2:-3000000}}"
+              python -m esptool --chip esp32s3 -p "$PORT" -b "$BAUD" --before default-reset --after hard-reset write-flash --flash-mode dout --flash-freq 80m --flash-size {os.environ['FLASH_SIZE']} \\
+                {split_lines}
+              """), encoding="utf-8")
+          (package_dir / "flash-esp32s3.sh").chmod(0o755)
+
+          (package_dir / "build-info.txt").write_text(textwrap.dedent(f"""\
+              artifact={base_name}
+              target={os.environ["TARGET_LABEL"]}
+              partition_profile={os.environ["PARTITION_SLUG"]}
+              partition_csv={os.environ["PARTITION_CSV"]}
+              app_offset={os.environ["APP_OFFSET"]}
+              flash_size={os.environ["FLASH_SIZE"]}
+              littlefs_offset={os.environ["LITTLEFS_OFFSET"]}
+              full_flash_image={names["merged"]}
+              platformio_env={os.environ["PIO_ENV"]}
+              mros_version={os.environ["MROS_VERSION"]}
+              version_source={os.environ["VERSION_SOURCE"]}
+              built_at_istanbul={os.environ["BUILT_AT_ISTANBUL"]}
+              built_at_utc={os.environ["BUILT_AT_UTC"]}
+              git_ref={os.environ["GITHUB_REF"]}
+              git_sha={os.environ["GITHUB_SHA"]}
+              run_id={os.environ["GITHUB_RUN_ID"]}
+              run_number={os.environ["GITHUB_RUN_NUMBER"]}
+              """), encoding="utf-8")
+
+          release_notes = textwrap.dedent(f"""\
+              ## MROS ESP32-S3 firmware image
+
+              - Target: {os.environ["TARGET_LABEL"]}
+              - Partition profile: `{os.environ["PARTITION_SLUG"]}`
+              - Partition CSV: `{names["partition_csv"]}`
+              - MROS version: `{os.environ["MROS_VERSION"]}`
+              - Version source: `{os.environ["VERSION_SOURCE"]}`
+              - Built at: `{os.environ["BUILT_AT_ISTANBUL"]}` Europe/Istanbul
+              - PlatformIO environment: `{os.environ["PIO_ENV"]}`
+              - Application file: `{names["app"]}`
+              - Full merged flash image: `{names["merged"]}`
+              - Commit: `{os.environ["GITHUB_SHA"]}`
+
+              ### Default access information
+
+              - Default SSH/web user name: `mros`
+              - Root user name: `root`
+              - Default SSH/web password: not generated by this CI build; first setup must provision credentials.
+              - Public builds contain no infrastructure Wi-Fi credentials.
+              - The setup hotspot remains disabled until a device-specific AP password is provisioned locally.
+
+              ### How to flash
+
+              `{names["app"]}` is only the application image. `{names["merged"]}` contains the bootloader, partition table, OTA data, recovery image, application image, and LittleFS image at the correct offsets.
+
+              Runtime data partitions such as NVS and coredump are reserved by the partition table but are not pre-populated with release data.
+
+              Linux/macOS installer:
+
+              ```bash
+              ./install-esp32s3.sh <SERIAL_PORT>
+              ```
+
+              Windows installer:
+
+              ```powershell
+              .\\install-esp32s3.ps1 -Port <SERIAL_PORT>
+              ```
+
+              Manual Windows full-image command:
+
+              ```powershell
+              {full_command}
+              ```
+
+              Split-file debug command:
+
+              ```powershell
+              {split_command}
+              ```
+              """)
+          (package_dir / "release-notes.md").write_text(release_notes, encoding="utf-8")
+
+          merged_path = package_dir / names["merged"]
+          (package_dir / "SHA256SUMS").write_text(
+              f"{sha256_file(merged_path)}  {names['merged']}\n", encoding="utf-8"
+          )
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              print(f"package_dir={package_dir.as_posix()}", file=handle)
+              print(f"merged_name={names['merged']}", file=handle)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write(release_notes)
+          PY
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.meta.outputs.base_name }}
+          path: ${{ steps.package.outputs.package_dir }}/**
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create draft GitHub Release
+        if: ${{ inputs.create_draft_release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_NAME: ${{ steps.package.outputs.merged_name }}
+          PACKAGE_DIR: ${{ steps.package.outputs.package_dir }}
+          RELEASE_TAG: ${{ steps.meta.outputs.release_tag }}
+          RELEASE_TITLE: MROS ESP32-S3 ${{ steps.meta.outputs.mros_version }} ${{ steps.meta.outputs.stamp }}
+        run: |
+          gh release create "$RELEASE_TAG" "$PACKAGE_DIR/$MERGED_NAME" "$PACKAGE_DIR/SHA256SUMS" \
+            --draft \
+            --title "$RELEASE_TITLE" \
+            --notes-file "$PACKAGE_DIR/release-notes.md" \
+            --target "$GITHUB_SHA"

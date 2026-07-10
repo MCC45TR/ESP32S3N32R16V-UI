@@ -1,0 +1,86 @@
+
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MROS - WiFi Setup</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+<div class="navbar">MROS WiFi Configuration</div>
+<div class="container" style="max-width: 500px;">
+  <div class="card">
+    <div class="card-title">Connect to Network</div>
+    <p>Select a WiFi network to bridge the ESP32 to your local network.</p>
+    <button id="scanBtn" onclick="scanWifi()">Scan Networks</button>
+    <div id="scanMsg" style="margin-top:10px; font-size:14px; color:#666;"></div>
+    <select id="ssidSelect" style="display:none; margin-top:10px;" onchange="document.getElementById('ssid').value = this.value;"></select>
+    
+    <label style="margin-top:15px; display:block;">SSID</label>
+    <input type="text" id="ssid" placeholder="Network Name">
+    <label>Password</label>
+    <input type="password" id="pass" placeholder="Network Password">
+    
+    <button onclick="saveWifi()" style="width: 100%; margin-top: 15px;">Save & Reboot</button>
+    
+    <div style="margin-top: 30px; text-align: center;">
+      <a href="/" class="btn" style="background-color: var(--surface-var);">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <div class="card-title">Change Login Credentials</div>
+    <p style="font-size: 14px; color: #888; margin-top: 5px;">Update your username and password. Current password confirmation is required.</p>
+    <label style="display:block; margin-top:10px;">Current Password</label>
+    <input type="password" id="current_pass" placeholder="Current password">
+    <label style="display:block; margin-top:10px;">New Username</label>
+    <input type="text" id="new_user" placeholder="New username (min 3 chars)">
+    <label style="display:block; margin-top:10px;">New Password</label>
+    <input type="password" id="new_pass" placeholder="New password (min 8 chars)">
+    <button onclick="saveCredentials()" style="width: 100%; margin-top: 15px;">Update Credentials</button>
+    <div id="cred_msg" style="margin-top: 10px; font-size: 14px;"></div>
+  </div>
+</div>
+<script>
+function scanWifi() {
+  document.getElementById('scanMsg').innerText = 'Scanning...';
+  fetch('/api/wifi/scan').then(r=> {
+      if(r.status === 202) {
+          setTimeout(scanWifi, 2000); // Retry if scanning
+      } else {
+          r.json().then(data => {
+            let sel = document.getElementById('ssidSelect');
+            sel.innerHTML = '<option value="">-- Select Network --</option>';
+            data.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = n.ssid; opt.innerText = n.ssid + ' (' + n.rssi + 'dBm)';
+                sel.appendChild(opt);
+            });
+            sel.style.display = 'block';
+            document.getElementById('scanMsg').innerText = 'Found ' + data.length + ' networks.';
+          });
+      }
+  });
+}
+function saveWifi() {
+  let s = document.getElementById('ssid').value;
+  let p = document.getElementById('pass').value;
+  if(!s) { alert('SSID is required'); return; }
+  fetch('/api/wifi/connect', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`ssid=${encodeURIComponent(s)}&pass=${encodeURIComponent(p)}`})
+  .then(r=> {
+      alert('Credentials saved. The device will now reboot and attempt to connect.');
+  });
+}
+function saveCredentials() {
+  var u = document.getElementById('new_user').value.trim();
+  var p = document.getElementById('new_pass').value;
+  var cur = document.getElementById('current_pass').value;
+  var msg = document.getElementById('cred_msg');
+  if(u.length < 3){ msg.style.color='#EA6A6A'; msg.innerText='Username must be at least 3 characters.'; return; }
+  if(p.length < 8){ msg.style.color='#EA6A6A'; msg.innerText='Password must be at least 8 characters.'; return; }
+  if(cur.length < 1){ msg.style.color='#EA6A6A'; msg.innerText='Current password is required.'; return; }
+  msg.style.color='#aaa'; msg.innerText='Saving...';
+  fetch('/api/credentials', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'new_user='+encodeURIComponent(u)+'&new_pass='+encodeURIComponent(p)+'&current_password='+encodeURIComponent(cur)})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){ msg.style.color='#9BEB5D'; msg.innerText='Done! Redirecting to login...'; setTimeout(function(){ window.location.href='/login'; }, 2000); }
+    else { msg.style.color='#EA6A6A'; msg.innerText='Error: '+(d.error||'Unknown error'); }
+  }).catch(function(){ msg.style.color='#EA6A6A'; msg.innerText='Request failed.'; });
+}
+</script>
+</body></html>

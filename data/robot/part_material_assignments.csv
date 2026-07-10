@@ -1,0 +1,14 @@
+part_id,label,link_frame_id,material_id,assignment_status,notes
+fixed_turret_body,Sabit Taret Govdesi,J0_BASE,AL7075_T6,seed_default,Final CAD ve uretim malzemesi ile dogrula.
+turret_holder,Doner Taret Govdesi,J1_TURRET,AL7075_T6,seed_default,Final CAD ve uretim malzemesi ile dogrula.
+turret_carrier,Doner Taret Tasiyici,J1_TURRET,AL7075_T6,seed_default,Final CAD ve uretim malzemesi ile dogrula.
+turret_top_cover,Doner Taret Kapagi,J1_TURRET,AL6061_T6,seed_default,Kapak sac/plate ise AL5005A olabilir.
+planet_gear_1,Gezegen Disli 1,J1_TURRET,STEEL4140_QT,seed_default,Dişli malzemesi ve isil islem kesinlestirilecek.
+planet_gear_2,Gezegen Disli 2,J1_TURRET,STEEL4140_QT,seed_default,Dişli malzemesi ve isil islem kesinlestirilecek.
+planet_gear_3,Gezegen Disli 3,J1_TURRET,STEEL4140_QT,seed_default,Dişli malzemesi ve isil islem kesinlestirilecek.
+arm1,Birinci Kol,J2_SHOULDER,AL7075_T6,seed_default,Final CAD sonrasi hacim/kutle/CG dogrula.
+arm2,Ikinci Kol,J3_ELBOW,AL7075_T6,seed_default,Final CAD sonrasi hacim/kutle/CG dogrula.
+arm3,Ucuncu Kol,J4_WRIST_A,AL6061_T6,seed_default,Final CAD sonrasi hacim/kutle/CG dogrula.
+arm4,Dorduncu Kol,J5_WRIST_B,AL6061_T6,seed_default,Final CAD sonrasi hacim/kutle/CG dogrula.
+arm5,Besinci Kol,J6_WRIST_C,AL6061_T6,seed_default,Final CAD sonrasi hacim/kutle/CG dogrula.
+arm6,Moduler Uc,J7_TOOL,AL6061_T6,seed_default,Takim/payload arayuzu ayrica tanimlanacak.

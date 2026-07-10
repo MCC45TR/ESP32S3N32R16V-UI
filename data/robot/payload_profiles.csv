@@ -1,0 +1,4 @@
+payload_id,label,mass_kg,com_x_mm,com_y_mm,com_z_mm,Ixx_kg_m2,Ixy_kg_m2,Ixz_kg_m2,Iyy_kg_m2,Iyz_kg_m2,Izz_kg_m2,status,notes
+none,No payload,0,0,0,0,0,0,0,0,0,0,active,Default no-payload profile.
+tool_light,Light tool placeholder,0.25,0,0,50,0,0,0,0,0,0,placeholder,Replace after tool CAD is finalized.
+tool_heavy,Heavy tool placeholder,1.00,0,0,75,0,0,0,0,0,0,placeholder,Replace after tool CAD is finalized.

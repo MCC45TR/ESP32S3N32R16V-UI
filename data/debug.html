@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MROS - Debug</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: transparent;
+      color: var(--text);
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+    .debug-shell {
+      min-height: 100vh;
+      padding: 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: color-mix(in srgb, var(--bg) 25%, transparent);
+    }
+    .debug-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+      backdrop-filter: blur(10px);
+      padding: 12px 14px;
+    }
+    .debug-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+    .debug-subtitle {
+      margin: 4px 0 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .debug-close {
+      border: 1px solid color-mix(in srgb, var(--danger, #ea6a6a) 65%, var(--border));
+      background: color-mix(in srgb, var(--danger, #ea6a6a) 24%, transparent);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      min-height: 36px;
+      padding: 0 14px;
+      cursor: pointer;
+    }
+    .debug-close:hover {
+      background: color-mix(in srgb, var(--danger, #ea6a6a) 38%, transparent);
+    }
+    .debug-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+    }
+    .debug-card {
+      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface-var) 78%, transparent);
+      padding: 12px;
+      min-height: 126px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(6px);
+    }
+    .debug-label {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .debug-value {
+      color: var(--primary);
+      font-size: 34px;
+      line-height: 1.04;
+      font-weight: 900;
+    }
+    .debug-value.medium {
+      font-size: 26px;
+    }
+    .debug-meta {
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.35;
+      min-height: 16px;
+    }
+    .debug-progress {
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      overflow: hidden;
+    }
+    .debug-progress > div {
+      height: 100%;
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+    .tone-blue { background: linear-gradient(90deg, #6a97ea, #b5ea6a); }
+    .tone-warm { background: linear-gradient(90deg, #eab96a, #ea6a6a); }
+    .tone-violet { background: linear-gradient(90deg, #b36aea, #6a97ea); }
+    .tone-cyan { background: linear-gradient(90deg, #44dddd, #6a97ea); }
+    .debug-footer {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0 2px;
+    }
+    .debug-back {
+      min-width: 260px;
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+      background: color-mix(in srgb, var(--surface-var) 82%, transparent);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .debug-back:hover {
+      border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+      color: var(--primary);
+    }
+    @media (max-width: 680px) {
+      .debug-shell { padding: 10px; }
+      .debug-title { font-size: 20px; }
+      .debug-value { font-size: 30px; }
+      .debug-value.medium { font-size: 23px; }
+      .debug-head { align-items: flex-start; flex-direction: column; }
+      .debug-close { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="debug-shell">
+    <div class="debug-head">
+      <div>
+        <h1 class="debug-title">MROS System Debug</h1>
+        <p class="debug-subtitle">Canli sistem metrikleri, bellek/partition kullanimi ve guvenlik durum ozetleri</p>
+      </div>
+      <button type="button" class="debug-close" onclick="dbgGoDashboard(event)">Kapat</button>
+    </div>
+
+    <div id="debugContent" class="debug-grid">
+      <div class="debug-card">
+        <div class="debug-label">RSSI (WiFi Gucu)</div>
+        <div id="sys_rssi" class="debug-value">-- dBm</div>
+        <div class="debug-meta"></div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Free Heap</div>
+        <div id="sys_free_heap" class="debug-value">--</div>
+        <div class="debug-meta"></div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Min Free Heap</div>
+        <div id="sys_min_free_heap" class="debug-value">--</div>
+        <div class="debug-meta"></div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Uptime</div>
+        <div id="sys_uptime" class="debug-value medium">--</div>
+        <div class="debug-meta"></div>
+      </div>
+
+      <div class="debug-card">
+        <div class="debug-label">SRAM (Internal Heap)</div>
+        <div id="sys_internal_heap" class="debug-value medium">--</div>
+        <div class="debug-progress"><div id="sys_internal_heap_bar" class="tone-blue"></div></div>
+        <div id="sys_internal_heap_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">PSRAM</div>
+        <div id="sys_psram" class="debug-value medium">--</div>
+        <div class="debug-progress"><div id="sys_psram_bar" class="tone-warm"></div></div>
+        <div id="sys_psram_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Flash App Partition</div>
+        <div id="sys_app_part" class="debug-value medium">--</div>
+        <div class="debug-progress"><div id="sys_app_part_bar" class="tone-violet"></div></div>
+        <div id="sys_app_part_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Recovery Partition</div>
+        <div id="sys_recovery_part" class="debug-value medium">--</div>
+        <div class="debug-progress"><div id="sys_recovery_part_bar" class="tone-warm"></div></div>
+        <div id="sys_recovery_part_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">LittleFS Partition</div>
+        <div id="sys_littlefs" class="debug-value medium">--</div>
+        <div class="debug-progress"><div id="sys_littlefs_bar" class="tone-cyan"></div></div>
+        <div id="sys_littlefs_meta" class="debug-meta">--</div>
+      </div>
+
+      <div class="debug-card">
+        <div class="debug-label">CPU Yuku + Cekirdek Hz + Sicaklik</div>
+        <div id="sys_cpu_load" class="debug-value medium">--</div>
+        <div id="sys_cpu_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">IK/FK Hesap Suresi</div>
+        <div id="sys_calc_time" class="debug-value medium">--</div>
+        <div id="sys_calc_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Kontrol Dongusu Hizi</div>
+        <div id="sys_loop_hz" class="debug-value medium">--</div>
+        <div id="sys_loop_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Gorev Kuyrugu</div>
+        <div id="sys_task_queue" class="debug-value medium">--</div>
+        <div id="sys_task_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Guvenlik Durumu</div>
+        <div id="sys_safety" class="debug-value medium">--</div>
+        <div id="sys_safety_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Depolama Sagligi</div>
+        <div id="sys_storage_health" class="debug-value medium">--</div>
+        <div id="sys_storage_meta" class="debug-meta">--</div>
+      </div>
+      <div class="debug-card">
+        <div class="debug-label">Enerji / Voltaj</div>
+        <div id="sys_power" class="debug-value medium">--</div>
+        <div id="sys_power_meta" class="debug-meta">--</div>
+      </div>
+    </div>
+
+    <div class="debug-footer">
+      <button type="button" class="debug-back" onclick="dbgGoDashboard(event)">Dashboard'a Don</button>
+    </div>
+  </div>
+<script>
+function dbgGoDashboard(ev) {
+  if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+  try {
+    if (window.top && window.top !== window.self) {
+      if (typeof window.top.closeDebugModal === 'function') {
+        window.top.closeDebugModal();
+        return false;
+      }
+      window.top.location.href = '/';
+      return false;
+    }
+  } catch (err) {}
+  window.location.href = '/';
+  return false;
+}
+function dbgFmtBytes(n) {
+  const v = Number(n) || 0;
+  if (v >= 1024 * 1024) return (v / (1024 * 1024)).toFixed(2) + ' MB';
+  if (v >= 1024) return (v / 1024).toFixed(1) + ' KB';
+  return v + ' B';
+}
+function dbgSetUsage(prefix, used, total) {
+  const usedN = Math.max(0, Number(used) || 0);
+  const totalN = Math.max(0, Number(total) || 0);
+  const freeN = Math.max(0, totalN - usedN);
+  const pct = totalN > 0 ? Math.max(0, Math.min(100, (usedN * 100.0) / totalN)) : 0;
+  const mainEl = document.getElementById(prefix);
+  const barEl = document.getElementById(prefix + '_bar');
+  const metaEl = document.getElementById(prefix + '_meta');
+  if (mainEl) mainEl.innerText = pct.toFixed(1) + '% dolu';
+  if (barEl) barEl.style.width = pct.toFixed(1) + '%';
+  if (metaEl) metaEl.innerText = 'Kullanilan: ' + dbgFmtBytes(usedN) + ' | Bos: ' + dbgFmtBytes(freeN);
+}
+function dbgFmtMaybe(v, digits, suffix, allowNegative) {
+  let n = Number(v);
+  if (!Number.isFinite(n)) n = 0;
+  if (!allowNegative && n < 0) n = 0;
+  return n.toFixed(digits || 0) + (suffix || '');
+}
+function dbgBoolText(v, onText, offText, unknownText) {
+  if (v === 1 || v === true) return onText;
+  if (v === 0 || v === false) return offText;
+  return unknownText || 'Bilinmiyor';
+}
+function fetchDebugInfo() {
+  fetch('/api/debug/sysinfo').then(r=>r.json()).then(d=>{
+    document.getElementById('sys_rssi').innerText = d.rssi + ' dBm';
+    document.getElementById('sys_free_heap').innerText = (d.free_heap / 1024).toFixed(1) + ' KB';
+    document.getElementById('sys_min_free_heap').innerText = (d.min_free_heap / 1024).toFixed(1) + ' KB';
+
+    let uptimeSec = d.uptime_s || 0;
+    let h = Math.floor(uptimeSec / 3600);
+    let m = Math.floor((uptimeSec % 3600) / 60);
+    let s = uptimeSec % 60;
+    document.getElementById('sys_uptime').innerText = h + 'h ' + m + 'm ' + s + 's';
+
+    const intTotal = Number(d.internal_total) || 0;
+    const intFree = Number(d.internal_free) || 0;
+    dbgSetUsage('sys_internal_heap', intTotal - intFree, intTotal);
+
+    const psTotal = Number(d.psram_total) || 0;
+    const psFree = Number(d.psram_free) || 0;
+    dbgSetUsage('sys_psram', psTotal - psFree, psTotal);
+
+    dbgSetUsage('sys_app_part', Number(d.app_used) || 0, Number(d.app_total) || 0);
+    dbgSetUsage('sys_recovery_part', Number(d.recovery_used) || 0, Number(d.recovery_total) || 0);
+    dbgSetUsage('sys_littlefs', Number(d.fs_used) || 0, Number(d.fs_total) || 0);
+
+    const cpuLoadEl = document.getElementById('sys_cpu_load');
+    if (cpuLoadEl) cpuLoadEl.innerText = dbgFmtMaybe(d.cpu_load_pct, 1, '%');
+    const cpuMetaEl = document.getElementById('sys_cpu_meta');
+    if (cpuMetaEl) {
+      const sharedFreq = Number.isFinite(Number(d.cpu_freq_mhz)) ? Number(d.cpu_freq_mhz) : 0;
+      const core0 = Number.isFinite(Number(d.cpu_freq_core0_mhz)) ? Number(d.cpu_freq_core0_mhz) : sharedFreq;
+      const core1 = Number.isFinite(Number(d.cpu_freq_core1_mhz)) ? Number(d.cpu_freq_core1_mhz) : sharedFreq;
+      const c3Hz = Number.isFinite(Number(d.c3_loop_hz)) ? Number(d.c3_loop_hz) : NaN;
+      cpuMetaEl.innerText = 'Core0: ' + core0.toFixed(0) + ' MHz | Core1: ' + core1.toFixed(0) + ' MHz' +
+        ' | C3 CPU: ' + (isFinite(c3Hz) ? c3Hz.toFixed(0) + ' MHz' : '-- MHz') +
+        ' | Sicaklik: ' + dbgFmtMaybe(d.cpu_temp_c, 1, ' C');
+    }
+
+    const calcEl = document.getElementById('sys_calc_time');
+    if (calcEl) {
+      calcEl.innerText = 'FK: ' + dbgFmtMaybe(d.fk_last_ms, 3, ' ms') +
+        ' | IK: ' + dbgFmtMaybe(d.ik_last_ms, 0, ' ms');
+    }
+    const calcMetaEl = document.getElementById('sys_calc_meta');
+    if (calcMetaEl) {
+      calcMetaEl.innerText = 'FK ort: ' + dbgFmtMaybe(d.fk_avg_ms, 3, ' ms') +
+        ' | max: ' + dbgFmtMaybe(d.fk_max_ms, 3, ' ms');
+    }
+
+    const loopEl = document.getElementById('sys_loop_hz');
+    if (loopEl) loopEl.innerText = dbgFmtMaybe(d.ctrl_actual_hz, 1, ' Hz');
+    const loopMetaEl = document.getElementById('sys_loop_meta');
+    if (loopMetaEl) {
+      loopMetaEl.innerText = 'Hedef: ' + dbgFmtMaybe(d.ctrl_target_hz, 1, ' Hz') +
+        ' | Fark: ' + dbgFmtMaybe(d.ctrl_diff_hz, 1, ' Hz', true) +
+        ' | Jitter: ' + dbgFmtMaybe(d.ctrl_jitter_ms, 2, ' ms');
+    }
+
+    const taskEl = document.getElementById('sys_task_queue');
+    if (taskEl) taskEl.innerText = 'Bekleyen: ' + (Number(d.task_queue_pending) || 0);
+    const taskMetaEl = document.getElementById('sys_task_meta');
+    if (taskMetaEl) {
+      const etaTxt = Number(d.task_eta_ms) > 0 ? (Number(d.task_eta_ms).toFixed(0) + ' ms') : '0 ms';
+      taskMetaEl.innerText = 'Aktif: ' + (d.task_active || 'Beklemede') + ' | ETA: ' + etaTxt;
+    }
+
+    const safetyEl = document.getElementById('sys_safety');
+    if (safetyEl) {
+      safetyEl.innerText = 'E-Stop: ' + dbgBoolText(Number(d.safety_estop), 'AKTIF', 'Kapali', 'Bilinmiyor');
+    }
+    const safetyMetaEl = document.getElementById('sys_safety_meta');
+    if (safetyMetaEl) {
+      const limTxt = Number(d.safety_limit) < 0 ? 'Bilinmiyor' : dbgBoolText(Number(d.safety_limit), 'Aktif', 'Yok', 'Bilinmiyor');
+      const singTxt = Number(d.safety_singularity) < 0 ? 'Bilinmiyor' : dbgBoolText(Number(d.safety_singularity), 'Aktif', 'Yok', 'Bilinmiyor');
+      const colTxt = dbgBoolText(Number(d.safety_collision), 'Uyari', 'Yok', 'Bilinmiyor');
+      safetyMetaEl.innerText = 'Limit: ' + limTxt + ' | Singular: ' + singTxt + ' | Carp.: ' + colTxt +
+        ' | Kod: ' + (Number(d.safety_error_code) || 0);
+    }
+
+    const storageEl = document.getElementById('sys_storage_health');
+    if (storageEl) storageEl.innerText = 'Wear: ' + dbgFmtMaybe(d.storage_wear_pct, 1, '%');
+    const storageMetaEl = document.getElementById('sys_storage_meta');
+    if (storageMetaEl) {
+      storageMetaEl.innerText =
+        'FS okuma: ' + dbgFmtMaybe(d.storage_fs_read_us, 0, ' us') +
+        ' | yazma: ' + dbgFmtMaybe(d.storage_fs_write_us, 0, ' us') +
+        ' | Hata: ' + (d.storage_last_error || 'Yok');
+    }
+
+    const powerEl = document.getElementById('sys_power');
+    if (powerEl) powerEl.innerText = 'VIN: ' + dbgFmtMaybe(d.power_vin_v, 2, ' V');
+    const powerMetaEl = document.getElementById('sys_power_meta');
+    if (powerMetaEl) {
+      powerMetaEl.innerText =
+        'Akim: ' + dbgFmtMaybe(d.power_current_ma, 1, ' mA') +
+        ' | Brownout(boot): ' + dbgBoolText(Number(d.power_brownout_boot), 'Evet', 'Hayir', 'Bilinmiyor');
+    }
+  }).catch(()=>{});
+}
+fetchDebugInfo();
+setInterval(fetchDebugInfo, 2000);
+</script>
+</body>
+</html>

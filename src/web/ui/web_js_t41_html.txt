@@ -1,0 +1,548 @@
+<h2>MROS DEUSCARA - ESP32-S3 <-> Teensy 4.1 Baglanti Karari</h2>
+
+Bu dosya <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">src/config/hw_config.h</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">src/comm_interfaces/spi/spi_t41_link.<em></code>, Teensy <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">src/board/mros_teensy41_pins.</em></code> ve Teensy <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">src/comm/qspi_esp32s3/*</code> kodlariyla karsilastirilarak guncellendi.
+
+<h3 style="color:#4db8ff;">Simdi Taksak Calisir mi?</h3>
+
+<table class="doc-table">
+<tr>
+<th>Hat</th>
+<th>Karar</th>
+<th>Neden</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>UART1 / Serial5</th>
+<th>Evet, bring-up icin uygun</th>
+<th>Pinler ve hiz sozlesmesi eslesiyor: ESP32-S3 <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART1</code> 5 Mbps, Teensy <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Serial5</code> 5 Mbps. Ortak GND ve 3.3 V seviye sart.</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>MSHELL2 / MSH1 UART</th>
+<th>Evet, temel uyum aktif</th>
+<th>ESP32-S3 tarafinda MSHELL2 metin ve MSH1 COBS ikili tünel var. Teensy tarafinda RX poll + MSHELL2/MSH1 sayaçlari artik aktif. Lab icin <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">uart-crypto disabled</code> / plaintext durumda tutulmali.</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>QSPI / SPI realtime link</th>
+<th>Evet, SPI uyumluluk modu ile bring-up uygun</th>
+<th>ESP32-S3 klasik <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">spi_slave</code> 1-bit MOSI/MISO/SCK/CS kullaniyor. Teensy tarafinda FlexIO1 4-bit QSPI pin kontrati korunurken <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">kFlexioQuadDmaDriverActive=false</code> durumda sync <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">SPI1</code> fallback aktif edildi (IO0/IO1/SCK/CS).</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>CANopen motor bus</th>
+<th>ESP32 ile ilgili degil</th>
+<th>Teensy-CANopen motor hattidir; ESP32-S3'e dogrudan baglanmaz.</th>
+</tr>
+</table>
+
+
+Sonuc: Bugun kablo takilacaksa UART1/Serial5 hemen calistirilabilir. QSPI adli servis de su an klasik 1-bit SPI uyumluluk yoluyla bring-up yapabilir; gercek 4-bit QuadSPI DMA fiziksel yol henuz lab-validasyon asamasindadir.
+
+<h3 style="color:#4db8ff;">2026-05-28 Build ve Port Dogrulamasi</h3>
+
+<table class="doc-table">
+<tr>
+<th>Kontrol</th>
+<th>Komut</th>
+<th>Sonuc</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Teensy firmware build</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">pio run -e teensy41</code> (<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">TEENSY41-Brain</code>)</th>
+<th>Basarili</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>ESP32-S3 firmware build</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">pio run -e s3_mros_hub_n32</code> (<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ESP32S3N32R16V-UI</code>)</th>
+<th>Basarili</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Teensy USB port gorunurlugu</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">pio device list</code></th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">USB VID:PID=16C0:0483</code> ile <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">&lt;SERIAL_PORT&gt;</code> gorunuyor</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>ESP32 app flash offset kontrolu</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">.b/s3_mros_hub_n32/flasher_args.json</code></th>
+<th>Ana firmware <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">0x120000</code> (app0)</th>
+</tr>
+</table>
+
+
+Notlar:<ul>
+<li>ESP32 tarafinda boyut/offset tutarliligi icin <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">platformio.ini</code> icine <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">board_build.app_partition_name = app0</code> eklendi.</li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">partitions-N32R16.csv</code> icinde normal app etiketi <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">app0</code> olarak kalir ve <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ota_0</code> subtype ile <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">0x120000</code> offsetinden flashlanir.</li></ul>
+<ul>
+<li>Recovery etiketi <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">recovery</code> olarak korunur ve <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">0x20000</code> offsette tutulur.</li></ul>
+
+
+<h3 style="color:#4db8ff;">UART1 / Serial5 Kablo Tablosu</h3>
+
+<table class="doc-table">
+<tr>
+<th>ESP32-S3 GPIO</th>
+<th>ESP32-S3 Rol</th>
+<th>Teensy 4.1 Pin</th>
+<th>Teensy Rol</th>
+<th>Not</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>17</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART1_TX</code></th>
+<th>21</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Serial5 RX</code></th>
+<th>ESP32-S3 -> Teensy veri</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>18</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART1_RX</code></th>
+<th>20</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Serial5 TX</code></th>
+<th>Teensy -> ESP32-S3 veri</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>16</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART1_CTS</code></th>
+<th>19</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Serial5 RTS</code></th>
+<th>Opsiyonel akış kontrol; ESP32 sadece CTS kullanir</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>GND</th>
+<th>Ground</th>
+<th>GND</th>
+<th>Ground</th>
+<th>Ortak ground zorunlu</th>
+</tr>
+</table>
+
+
+UART sozlesmesi:
+
+<table class="doc-table">
+<tr>
+<th>Alan</th>
+<th>Deger</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Baud</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">5,000,000</code></th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Data</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">8N1</code></th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>ESP32 taraf</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART_NUM_1</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_UART1_TX=17</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_UART1_RX=18</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_UART1_CTS=16</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_UART1_RTS=-1</code></th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Teensy taraf</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Serial5</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">RX=21</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">TX=20</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">RTS=19</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">CTS_RESERVED=18</code> pasif</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Plaintext bring-up</th>
+<th>Uygun</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Sifreli UART</th>
+<th>Iki tarafta da ayni <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MUS1</code>/PSK acilmadan kullanma</th>
+</tr>
+</table>
+
+
+<h3 style="color:#4db8ff;">UART Protokol Katmanlari</h3>
+
+<table class="doc-table">
+<tr>
+<th>Katman</th>
+<th>ESP32-S3 durumu</th>
+<th>Teensy durumu</th>
+<th>Karar</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>Plain text log</th>
+<th>Var</th>
+<th>Var</th>
+<th>Lab bring-up icin en guvenli ilk test</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">UART_Wifi_Status_t</code> COBS frame</th>
+<th>ESP32-S3 her 1 s gonderiyor; <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">user</code> alani <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">clients:N</code> tasir</th>
+<th>Teensy CRC/durum consumer aktif; LCD IP banner icin kullanir</th>
+<th>Wi-Fi bagli ve <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">clients:0</code> iken LCD IP gosterir</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL2:</code> text frame</th>
+<th>ESP32-S3 parse ediyor</th>
+<th>Teensy RX poll + counter aktif</th>
+<th>Iki yonlu temel uyum</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSH1</code> COBS binary tunnel</th>
+<th>ESP32-S3 parse ediyor</th>
+<th>Teensy COBS decode + binary frame counter aktif</th>
+<th>Iki yonlu temel uyum</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MUS1</code> UART crypto</th>
+<th>Teensy tarafinda var</th>
+<th>ESP32-S3 tarafinda acik consumer gorulmedi</th>
+<th>Simdilik kapali/lab plaintext</th>
+</tr>
+</table>
+
+
+<h3 style="color:#4db8ff;">QSPI / SPI Durumu</h3>
+
+<h4>ESP32-S3 Kodundaki Aktif SPI Pinleri</h4>
+
+<table class="doc-table">
+<tr>
+<th>ESP32-S3 GPIO</th>
+<th>Rol</th>
+<th>Not</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>10</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_CS</code></th>
+<th>Klasik SPI slave CS</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>11</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_MOSI</code></th>
+<th>Klasik SPI MOSI</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>12</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_SCK</code></th>
+<th>Klasik SPI clock</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>13</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_MISO</code></th>
+<th>Klasik SPI MISO</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>14</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_DATA_READY</code> / <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ESP_READY</code></th>
+<th>ESP32-S3 -> Teensy ready</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>15</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_T41_READY</code></th>
+<th>Teensy -> ESP32-S3 ready input</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>39</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_TEENSY_IRQ</code></th>
+<th>ESP32-S3 -> Teensy IRQ</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>40</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_TEENSY_RESET</code></th>
+<th>Teensy -> ESP32-S3 reset input</th>
+</tr>
+</table>
+
+
+<h4>Teensy Kodundaki QSPI Pin Sozlesmesi</h4>
+
+<table class="doc-table">
+<tr>
+<th>Teensy Pin</th>
+<th>Rol</th>
+<th>Not</th>
+</tr>
+</table>
+
+<table class="doc-table">
+</table>
+
+<table class="doc-table">
+<tr>
+<th>2</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_SCK</code></th>
+<th>FlexIO1 QuadSPI hedef clock</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>3</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_IO0</code></th>
+<th>Quad data lane</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>4</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_IO1</code></th>
+<th>Quad data lane</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>33</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_IO2</code></th>
+<th>Quad data lane</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>5</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_IO3</code></th>
+<th>Quad data lane</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>6</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">QSPI_CS</code></th>
+<th>Active-low select</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>8</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">T41_READY</code></th>
+<th>Teensy -> ESP32-S3</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>9</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ESP_READY</code></th>
+<th>ESP32-S3 -> Teensy</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>10</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ESP_IRQ</code></th>
+<th>ESP32-S3 -> Teensy</th>
+</tr>
+</table>
+
+<table class="doc-table">
+<tr>
+<th>11</th>
+<th><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">ESP_RESET</code></th>
+<th>Teensy -> ESP32-S3</th>
+</tr>
+</table>
+
+
+<h4>QSPI Servisindeki Mevcut Fiziksel Durum</h4><ul>
+<li>ESP32-S3 endpoint'i artik <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">quad-ready</code>/<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">classic</code> modunu runtime secer. <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_WP</code> ve <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_HD</code> atanmadiysa klasik 1-bit SPI (<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">quadwp_io_num=-1</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">quadhd_io_num=-1</code>) kullanilir.</li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_WP</code>/<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">PIN_SPI_HD</code> atanirsa bus 4-bit lane pinleriyle acilir (<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">quad-ready-4bit</code>), ancak master tarafindaki fiziksel 4-bit yol yine ayri dogrulama ister.</li></ul>
+<ul>
+<li>Teensy tarafinda <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">kFlexioQuadDmaDriverActive=false</code> iken sync <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">SPI1</code> fallback devreye girer ve <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">SCK=2</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">IO0=3</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">IO1=4</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">CS=6</code> hatlariyla transfer baslatir.</li></ul>
+<ul>
+<li>Gercek 4-bit QuadSPI DMA (IO0/IO1/IO2/IO3) hatti halen <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">driver=pending</code> durumundadir.</li></ul>
+
+
+<h3 style="color:#4db8ff;">Guvenli Bring-up Sirasi</h3>
+
+1. Sadece UART1/Serial5 ve GND bagla.
+2. Iki karti da USB'den ayri ayri besle veya ortak power planini dogrula; 5 V tolerant varsayma.
+3. ESP32-S3 shell'de <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">set uart-shell-bridge listen</code> veya gereken test icin <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">set uart-shell-bridge on</code> kullan.
+4. Teensy USB mshell'de <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">uart status</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">mshell status s3</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">mshell connect s3</code> komutlariyla sayaçlari kontrol et.
+5. SPI uyumluluk testi icin ek olarak su baglantiyi yap: ESP32 <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO12(SCK)->T41 pin2</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO11(MOSI)->T41 pin3</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO13(MISO)<-T41 pin4</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO10(CS)<->T41 pin6</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO14(ESP_READY)->T41 pin9</code>, <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">GPIO15(T41_READY)<-T41 pin8</code>.
+6. Realtime 4-bit QuadSPI beklentisini simdilik acma; bu adim icin FlexIO1 DMA yolunun ayrica dogrulanmasi gerekiyor.
+
+<h3 style="color:#4db8ff;">Mshell Link Diagnostic v1 Komut Sozlesmesi</h3>
+
+ESP32-S3 tarafinda yeni komutlar:<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">spi test [--duration 10] [--json]</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">uart test [--duration 10] [--json]</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">robot diag linktest [uart|qspi|all] [--duration 10] [--json]</code></li></ul>
+
+
+Teensy tarafinda esit komutlar:<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">comm qspi test [--duration 10] [--json]</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">comm qspi clock status|suggest|set <hz>|apply-suggested [--yes] [--json]</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">uart test [--duration 10] [--json]</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">devices test p4|uart|s3-uart|all [--json]</code></li></ul>
+
+
+Not:<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">c3</code> hedefi bu topolojide devre disidir; eski alias cagrilarinda komut acikca <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">disabled</code> doner.</li></ul>
+
+
+Varsayilan test ciktilari:<ul>
+<li>Sirali metin satirlari</li></ul>
+<ul>
+<li>Varsayilan cikti sadece metin</li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">--json</code> verilirse yalnizca JSON basilir</li></ul>
+
+
+Sira formati:<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Cihaz ile iletisim: OK/FAIL</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Yanit alindi (UART DIAG): OK/FAIL</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Yanit alindi (QSPI Frame|UART Frame): OK/FAIL</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Saglik: %NN.N</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Veri hizi: X.XXX Mbps</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">Oneri: Hiz ...</code></li></ul>
+
+
+Ortak DIAG mesaj cercevesi (UART/mshell):<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:PING:<id>:<t_ms></code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:PONG:<id>:<t_ms>:OK</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:CLOCK_PREP:<new_hz>:<nonce></code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:CLOCK_ACK:<new_hz>:<nonce>:OK|BUSY|ERR</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:CLOCK_COMMIT:<new_hz>:<nonce></code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">MSHELL:DIAG:CLOCK_ROLLBACK:<old_hz>:<nonce></code></li></ul>
+
+
+Saat onerme merdiveni (Hz):<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">780000</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">1000000</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">1456000</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">2000000</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">2567000</code></li></ul>
+<ul>
+<li><code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">3200000</code></li></ul>
+
+
+<h3 style="color:#4db8ff;">Duzeltilen Derleme Notu</h3>
+
+<code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">spi_t41_slave.h</code> adi artik yok; ESP32-S3 kodu <code style="background:#333;padding:2px 4px;border-radius:3px;color:#e83e8c;">spi_t41_link.h</code> dosyasina bakmali. Bu include sozlesmesi kodda guncellendi.
+</p>

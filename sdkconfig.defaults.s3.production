@@ -1,0 +1,22 @@
+# ESP32-S3 MROS production security overlay.
+#
+# Use this as an audited overlay for release/eFuse provisioning builds, not as a
+# casual lab default. Secure boot and flash encryption are one-way hardware
+# operations once eFuses are burned.
+
+CONFIG_SECURE_BOOT=y
+CONFIG_SECURE_BOOT_V2_ENABLED=y
+CONFIG_SECURE_BOOT_BUILD_SIGNED_BINARIES=y
+CONFIG_SECURE_BOOT_SIGNING_KEY="secure_boot_signing_key.pem"
+
+CONFIG_FLASH_ENCRYPTION_ENABLED=y
+CONFIG_FLASH_ENCRYPTION_MODE_RELEASE=y
+
+CONFIG_NVS_ENCRYPTION=y
+CONFIG_NVS_SEC_KEY_PROTECT_USING_FLASH_ENC=y
+
+CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK=y
+CONFIG_APP_SECURE_VERSION=1
+
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=y

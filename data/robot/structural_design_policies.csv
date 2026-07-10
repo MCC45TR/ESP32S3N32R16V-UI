@@ -1,0 +1,8 @@
+policy_id,material_family_match,default_static_yield_factor,default_shear_factor,default_ultimate_factor,default_fatigue_factor,seed_data_knockdown,temperature_derate_per_100c,minimum_acceptable_static_sf,minimum_acceptable_fatigue_sf,status,notes
+aluminum_seed,aluminum,2.00,1.80,2.50,3.00,0.80,0.08,1.50,1.30,seed,Use for wrought aluminum seed data until certificate allowables and final FEM/test data exist.
+steel_structural_seed,steel_structural,1.80,1.70,2.20,2.50,0.85,0.05,1.50,1.30,seed,Use for structural steels with typical values; replace with EN/ASTM allowables.
+carbon_steel_seed,carbon_steel,1.90,1.75,2.30,2.60,0.85,0.05,1.50,1.30,seed,Use for carbon/alloy steels with typical seed values.
+stainless_seed,stainless,2.00,1.80,2.40,2.80,0.82,0.05,1.50,1.30,seed,Use for stainless steel seed data; verify fatigue and corrosion environment.
+titanium_seed,titanium,2.00,1.80,2.50,2.80,0.82,0.06,1.50,1.30,seed,Use for titanium seed data; replace with supplier batch allowables.
+polymer_seed,polymer,3.00,2.50,3.50,4.00,0.60,0.20,2.00,1.50,seed,Use for polymers only as a rough placeholder; creep and temperature validation required.
+default_seed,*,2.25,2.00,3.00,3.50,0.75,0.10,1.75,1.50,seed,Fallback policy for unknown material families.

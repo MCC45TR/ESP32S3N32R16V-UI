@@ -1,0 +1,19 @@
+{
+  "schema": "mros.materials.v1",
+  "library_name": "MROS Mechanical Materials Seed Library",
+  "quality_model": "ANSYS-Granta-style source-tracked tabular data, not copied from proprietary databases",
+  "unit_system": "SI",
+  "files": {
+    "index": "/materials/materials_index.csv",
+    "mechanical": "/materials/materials_mechanical.csv",
+    "sources": "/materials/materials_sources.csv",
+    "aliases": "/materials/material_aliases.csv"
+  },
+  "warning": {
+    "id": "robot-cad-final-mechanical-review",
+    "severity": "warning",
+    "title": "Robot CAD tamamlaninca mekanik model dogrulanacak",
+    "message": "Parca malzemeleri, kutle merkezleri, atalet tensorleri, rulman merkezleri ve yuk yollari final CAD sonrasi tekrar girilmeli ve dogrulanmali.",
+    "blocking_for_release": false
+  }
+}

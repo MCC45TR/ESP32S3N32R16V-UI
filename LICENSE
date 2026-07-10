@@ -1,0 +1,452 @@
+MCC Academic Non-Commercial Source-Available License v1.0
+
+Copyright (c) 2026 Mürşit Can Cihan
+
+Author / Licensor:
+Mürşit Can Cihan
+GitHub: @mcc45tr
+
+SPDX-License-Identifier: LicenseRef-MCC-Academic-NC-1.0
+
+===============================================================================
+1. PURPOSE OF THIS LICENSE
+===============================================================================
+
+This repository is made publicly available for academic, educational, research,
+review, and thesis-related purposes only.
+
+The intention of this license is to allow students, researchers, instructors,
+reviewers, and non-commercial academic users to read, study, reproduce, modify,
+test, validate, and reference the work, while strictly prohibiting any commercial
+use without the prior explicit written permission of the Licensor.
+
+This repository is source-available for academic and non-commercial purposes.
+It is not released as open-source software under an OSI-approved license, because
+commercial use and certain fields of use are restricted.
+
+===============================================================================
+2. DEFINITIONS
+===============================================================================
+
+For the purposes of this License:
+
+2.1. "Licensor" means Mürşit Can Cihan, the copyright holder and original
+     author of the original content in this repository, unless otherwise noted.
+
+2.2. "Repository" means this GitHub repository and all original files, source
+     code, firmware, scripts, documentation, CAD files, design files, simulation
+     files, reports, figures, drawings, images, datasets, configuration files,
+     examples, and other materials included in it.
+
+2.3. "Licensed Material" means all original material in this Repository that is
+     owned by the Licensor and is not separately marked with another license.
+
+2.4. "Software" means source code, firmware, scripts, build files, configuration
+     files, algorithms, examples, libraries, and any other executable or
+     machine-readable material included in this Repository.
+
+2.5. "Non-Software Material" means thesis text, reports, diagrams, figures,
+     images, tables, explanatory documentation, educational notes, CAD drawings,
+     CAD models, simulation documentation, and other non-executable material.
+
+2.6. "Academic Use" means use for study, teaching, coursework, thesis work,
+     academic research, non-commercial laboratory experiments, peer review,
+     academic presentations, academic publications, and educational
+     demonstrations.
+
+2.7. "Non-Commercial Use" means use that is not primarily intended for, directed
+     toward, or connected with commercial advantage, monetary compensation,
+     revenue generation, product development for sale, paid services, business
+     operations, or commercial exploitation.
+
+2.8. "Commercial Use" includes, but is not limited to:
+
+     a. using the Licensed Material in, or to develop, a commercial product,
+        commercial service, paid consultancy, paid training, paid research
+        contract, or commercial prototype;
+
+     b. selling, licensing, sublicensing, renting, leasing, or otherwise
+        commercially distributing the Licensed Material or derivatives of it;
+
+     c. using the Licensed Material inside a company, startup, private R&D
+        department, industrial project, paid engineering workflow, or commercial
+        manufacturing process;
+
+     d. using the Licensed Material to design, manufacture, validate, advertise,
+        benchmark, or support a commercial machine, robot, mechanism, embedded
+        system, electronic device, software tool, or engineering service;
+
+     e. using the Licensed Material in a product, service, or platform that is
+        monetized directly or indirectly;
+
+     f. using the Licensed Material to obtain direct or indirect commercial
+        advantage, including investor demonstrations, commercial customer
+        demonstrations, paid tenders, contract bids, or commercial feasibility
+        studies;
+
+     g. using the Licensed Material as part of paid consulting, paid engineering
+        support, paid technical documentation, paid training material, or paid
+        design work;
+
+     h. using the Licensed Material in any environment where the primary purpose
+        is commercial, even if the Licensed Material itself is not sold
+        separately.
+
+2.9. "Derivative Work" means any modification, adaptation, translation,
+     transformation, extension, rearrangement, port, redesign, converted file,
+     edited CAD model, modified code, modified circuit, modified documentation,
+     or other work based upon the Licensed Material.
+
+2.10. "Share" means to copy, publish, upload, distribute, transmit, make
+      available, or otherwise provide access to the Licensed Material or a
+      Derivative Work.
+
+2.11. "You" means any individual, institution, organization, or legal entity
+      accessing, using, copying, modifying, or sharing the Licensed Material.
+
+===============================================================================
+3. LICENSE GRANT
+===============================================================================
+
+Subject to full compliance with this License, the Licensor grants You a
+worldwide, royalty-free, non-exclusive, non-transferable, non-sublicensable
+license to use the Licensed Material for Academic Use and Non-Commercial Use
+only.
+
+Under this License, You may:
+
+a. view, read, and study the Licensed Material;
+
+b. copy and store the Licensed Material for Academic Use or Non-Commercial Use;
+
+c. run, test, simulate, and analyze the Software for Academic Use or
+   Non-Commercial Use;
+
+d. reproduce academic experiments, calculations, simulations, and demonstrations
+   based on the Licensed Material;
+
+e. modify, adapt, translate, or extend the Licensed Material for Academic Use or
+   Non-Commercial Use;
+
+f. use the Licensed Material in coursework, thesis work, academic research,
+   laboratory demonstrations, academic presentations, and non-commercial
+   educational projects;
+
+g. cite, reference, discuss, or review the Licensed Material in academic
+   publications, reports, presentations, and educational material;
+
+h. share copies or Derivative Works only if the requirements in Section 5 are
+   satisfied.
+
+No rights are granted for Commercial Use unless a separate written commercial
+license or written permission is obtained from the Licensor.
+
+===============================================================================
+4. PROHIBITED USES
+===============================================================================
+
+You may not, without prior explicit written permission from the Licensor:
+
+a. use the Licensed Material for any Commercial Use;
+
+b. sell, rent, license, sublicense, monetize, or commercially distribute the
+   Licensed Material or any Derivative Work;
+
+c. use the Licensed Material in any commercial product, paid service, paid
+   engineering project, paid research project, paid consultancy, or commercial
+   prototype;
+
+d. use the Licensed Material in industrial production, commercial manufacturing,
+   commercial automation systems, commercial robotic systems, or commercial
+   embedded products;
+
+e. use the Licensed Material as part of any proprietary commercial software,
+   firmware, hardware, mechanical design, CAD package, simulation workflow,
+   documentation package, or engineering service;
+
+f. use the Licensed Material to train, evaluate, benchmark, or improve a
+   commercial artificial intelligence system, commercial machine learning
+   model, commercial dataset, or commercial design automation system;
+
+g. remove, hide, alter, or misrepresent copyright notices, license notices,
+   attribution notices, authorship information, or source references;
+
+h. imply that the Licensor endorses You, Your institution, Your organization,
+   Your product, Your research, or Your derivative work;
+
+i. apply legal terms, technological restrictions, digital rights management,
+   access controls, or platform terms that prevent recipients from exercising
+   the rights granted by this License for permitted academic and non-commercial
+   purposes;
+
+j. use the Licensed Material in safety-critical, medical, military, aerospace,
+   automotive, industrial, or high-risk operational systems without independent
+   professional verification and explicit written permission from the Licensor;
+
+k. use the Licensed Material in a way that violates applicable laws, academic
+   ethics, export control rules, university policies, or third-party rights.
+
+===============================================================================
+5. REDISTRIBUTION AND DERIVATIVE WORKS
+===============================================================================
+
+You may Share the Licensed Material or Derivative Works only for Academic Use or
+Non-Commercial Use and only if all of the following conditions are satisfied:
+
+a. You must retain the original copyright notice:
+
+   Copyright (c) 2026 Mürşit Can Cihan
+
+b. You must retain this License text or provide a clear link to it.
+
+c. You must provide appropriate attribution to the original author:
+
+   Original work by Mürşit Can Cihan (@mcc45tr)
+
+d. You must clearly indicate whether You modified the Licensed Material.
+
+e. You must describe major modifications in a reasonable manner, for example in
+   a README file, changelog, source file header, commit message, or accompanying
+   documentation.
+
+f. You must not represent modified versions as the original work of the Licensor.
+
+g. You must distribute any Derivative Work under terms that are at least as
+   restrictive as this License with respect to academic-only and
+   non-commercial-only use.
+
+h. You must not grant commercial rights to any recipient.
+
+i. You must not remove or alter third-party license notices.
+
+j. You must ensure that recipients understand that Commercial Use is prohibited
+   unless separate written permission is obtained from the Licensor.
+
+Suggested attribution format:
+
+   Based on original work by Mürşit Can Cihan (@mcc45tr),
+   licensed under the MCC Academic Non-Commercial Source-Available License v1.0.
+   Changes were made by [Your Name / Institution], [Year].
+
+===============================================================================
+6. NON-SOFTWARE MATERIAL AND CREATIVE COMMONS NOTICE
+===============================================================================
+
+Unless otherwise noted, Non-Software Material in this Repository, including
+documentation, thesis-related text, diagrams, figures, educational explanations,
+tables, reports, and non-code visual material, is additionally made available
+under the Creative Commons Attribution-NonCommercial 4.0 International License
+(CC BY-NC 4.0).
+
+License reference:
+https://creativecommons.org/licenses/by-nc/4.0/
+Legal code:
+https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+SPDX-License-Identifier for such material:
+CC-BY-NC-4.0
+
+In case of conflict between this License and the CC BY-NC 4.0 notice for
+Non-Software Material, the more restrictive non-commercial and attribution
+requirements shall apply to the maximum extent permitted by law.
+
+For Software, firmware, scripts, algorithms, and executable material, this MCC
+Academic Non-Commercial Source-Available License v1.0 is the controlling license,
+unless a file explicitly states otherwise.
+
+===============================================================================
+7. THIRD-PARTY MATERIALS
+===============================================================================
+
+This License applies only to original material owned by the Licensor.
+
+Third-party code, third-party libraries, dependencies, packages, datasets,
+fonts, icons, CAD components, vendor files, hardware documentation, datasheets,
+standards, copied examples, and externally sourced materials may be subject to
+their own licenses, terms, and restrictions.
+
+Such third-party materials are not re-licensed by this License.
+
+You are responsible for identifying and complying with all applicable third-party
+licenses and terms.
+
+If a file, folder, dependency, or component contains a separate license notice,
+that separate license governs that file, folder, dependency, or component.
+
+===============================================================================
+8. CONTRIBUTIONS
+===============================================================================
+
+Unless a separate written agreement states otherwise, any contribution submitted
+to this Repository, including code, documentation, CAD files, design files,
+issues, pull requests, patches, suggestions, or other material, is submitted
+under the same license terms as this Repository.
+
+By submitting a contribution, You represent that:
+
+a. You have the right to submit the contribution;
+
+b. the contribution does not knowingly violate third-party rights;
+
+c. the contribution may be used, modified, reproduced, and distributed under
+   this License;
+
+d. the contribution may be included in academic and non-commercial versions of
+   this Repository.
+
+Submitting a contribution does not transfer copyright ownership unless a
+separate written assignment agreement is signed.
+
+The Licensor may accept, reject, modify, or remove contributions at the
+Licensor's discretion.
+
+===============================================================================
+9. ACADEMIC CITATION REQUEST
+===============================================================================
+
+If You use this Repository or any substantial part of it in academic work,
+including a thesis, article, paper, report, presentation, project, or lecture,
+You are requested to cite the original author and repository.
+
+Suggested citation format:
+
+   Mürşit Can Cihan. (2026). [Repository Name].
+   GitHub repository. Available at: [Repository URL].
+   Licensed under the MCC Academic Non-Commercial Source-Available License v1.0.
+
+If a formal citation file such as CITATION.cff is provided in the Repository,
+please use the citation information provided there.
+
+===============================================================================
+10. NO PATENT OR TRADEMARK LICENSE
+===============================================================================
+
+This License does not grant any patent rights, trademark rights, trade name
+rights, logo rights, design registration rights, industrial design rights, or
+other rights not expressly stated in this License.
+
+No permission is granted to use the name, username, logo, identity, affiliation,
+or personal branding of the Licensor for endorsement, promotion, advertising, or
+commercial purposes.
+
+===============================================================================
+11. NO WARRANTY
+===============================================================================
+
+The Licensed Material is provided "AS IS", without warranty of any kind, express
+or implied.
+
+To the maximum extent permitted by applicable law, the Licensor disclaims all
+warranties, including but not limited to warranties of correctness, accuracy,
+completeness, reliability, safety, fitness for a particular purpose,
+merchantability, non-infringement, performance, manufacturability, and
+suitability for academic, industrial, commercial, mechanical, electrical,
+robotic, embedded, or safety-critical use.
+
+The Licensed Material may contain errors, omissions, incomplete calculations,
+incorrect assumptions, unsafe design choices, experimental results, preliminary
+models, unverified simulations, or non-final engineering decisions.
+
+You are solely responsible for independent verification, validation, testing,
+risk assessment, and professional review before relying on the Licensed Material.
+
+===============================================================================
+12. LIMITATION OF LIABILITY
+===============================================================================
+
+To the maximum extent permitted by applicable law, the Licensor shall not be
+liable for any direct, indirect, incidental, special, consequential, exemplary,
+punitive, or other damages arising from or related to the Licensed Material or
+this License.
+
+This includes, but is not limited to, damages related to:
+
+a. academic use;
+b. engineering use;
+c. design errors;
+d. simulation errors;
+e. manufacturing errors;
+f. hardware failures;
+g. software failures;
+h. firmware failures;
+i. data loss;
+j. equipment damage;
+k. personal injury;
+l. financial loss;
+m. business interruption;
+n. loss of profits;
+o. failed experiments;
+p. failed projects;
+q. unsafe operation;
+r. misuse of the Licensed Material.
+
+Use of the Licensed Material is entirely at Your own risk.
+
+===============================================================================
+13. TERMINATION
+===============================================================================
+
+Your rights under this License terminate automatically if You violate any term of
+this License.
+
+Upon termination, You must stop using, copying, modifying, sharing, publishing,
+or distributing the Licensed Material and any Derivative Works.
+
+Sections concerning attribution, prohibited commercial use, third-party
+materials, no warranty, limitation of liability, no patent or trademark license,
+and termination shall survive termination to the maximum extent permitted by law.
+
+The Licensor may reinstate permissions at the Licensor's discretion through
+explicit written permission.
+
+===============================================================================
+14. SEPARATE COMMERCIAL PERMISSION
+===============================================================================
+
+Commercial Use is not allowed under this License.
+
+Any person, company, institution, startup, laboratory, manufacturer, consultant,
+or other organization seeking Commercial Use must obtain prior explicit written
+permission from the Licensor.
+
+A separate commercial license, written agreement, or written permission may be
+granted, denied, limited, or conditioned at the sole discretion of the Licensor.
+
+No silence, delay, public availability, repository access, GitHub fork, issue
+reply, pull request review, or informal communication shall be interpreted as
+commercial permission.
+
+===============================================================================
+15. GOVERNING INTERPRETATION
+===============================================================================
+
+This License is intended to be interpreted in a manner that preserves the
+following core principles:
+
+a. academic and educational access is allowed;
+
+b. non-commercial research and learning are allowed;
+
+c. attribution to Mürşit Can Cihan is required;
+
+d. commercial use is prohibited unless separately permitted in writing;
+
+e. third-party materials keep their own licenses;
+
+f. the Licensed Material is provided without warranty;
+
+g. the Licensor is not liable for use, misuse, errors, or consequences.
+
+If any provision of this License is found unenforceable, the remaining provisions
+shall remain in effect to the maximum extent permitted by applicable law.
+
+===============================================================================
+16. CONTACT
+===============================================================================
+
+For commercial licensing, special permission, collaboration requests, or
+questions about permitted use, contact the Licensor through the contact
+information provided in the Repository profile, README file, or associated
+GitHub account.
+
+End of License.

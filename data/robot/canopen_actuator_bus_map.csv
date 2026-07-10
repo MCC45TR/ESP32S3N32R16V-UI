@@ -1,0 +1,4 @@
+node_id,joint_id,axis_id,actuator_model,protocol_primary,protocol_fallback,can_bus,can_bitrate_seed,db9_canl_pin,db9_canh_pin,heartbeat_timeout_ms,command_timeout_ms,homing_method,status,notes
+1,J3,P_Z_BASE_LIFT,M4210E14B50L,CANopen,Modbus_or_pulse_dir,CAN1,1000000,8,9,300,100,limit_switch_plus_absolute_encoder,seed,"Vertical axis must fail safe on heartbeat loss. Add brake/self-locking validation before load tests."
+2,J1,R1_FIRST_ARM,M8025(B)E25B80L,CANopen,Modbus_or_pulse_dir,CAN1,1000000,8,9,300,100,absolute_encoder_zero_or_home_mark,seed,"First arm high torque axis. Confirm node id and object dictionary from EDS before enabling torque."
+3,J2,R2_SECOND_ARM,M8010(B)E17B50L,CANopen,Modbus_or_pulse_dir,CAN1,1000000,8,9,300,100,absolute_encoder_zero_or_home_mark,seed,"Second arm axis. Confirm node id and object dictionary from EDS before enabling torque."

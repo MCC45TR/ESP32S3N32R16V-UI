@@ -1,0 +1,100 @@
+# -----------------------------------------------------------------------------
+# MROS DEUSCARA ESP32-S3 - Professional Git Ignore Policy
+# Goal: keep only source and build-required configuration in Git.
+# -----------------------------------------------------------------------------
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python / tool metadata
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs / temporary / merge residue
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# Secrets and local environment
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+
+# Local per-user PlatformIO overrides
+platformio.local.ini
+recovery_app/platformio.local.ini
+
+# Local Wi-Fi provisioning and generated dependency state
+/src/config/wifi_secrets.h
+/dependencies.lock
+/recovery_app/dependencies.lock
+/data/ESPUSER/firmware/**/*.bin
+/data/ESPUSER/firmware/**/*.sha256
+
+# Maintainer-only planning/checklist notes
+/S3_TEENSY41_MIGRATION_CHECKLIST.md
+/docs/robot-prr-scara-process-plan.md
+
+# Duplicate or upstream test-only credential material that is not used by the
+# ESP32-S3 firmware build. Keep the production component sources, not demo keys.
+/components/components/
+/components/wolfssh/keys/
+/components/wolfssl/certs/
+/components/wolfssl/IDE/**/example_keys/
+/components/wolfssl/IDE/**/nbproject/private/
+
+# PlatformIO / ESP-IDF generated build folders (root + nested)
+.pio/
+.b/
+.bc/
+.c/
+build/
+output/
+dist/
+cmake-build-*/
+**/.pio/
+**/.b/
+**/.bc/
+**/.c/
+**/build/
+**/output/
+**/cmake-build-*/
+
+# CMake/Ninja metadata that may appear outside build folders
+CMakeCache.txt
+compile_commands.json
+.ninja_deps
+.ninja_log
+
+# Workspace-local tool/runtime caches
+.pc/
+.pk/
+.pl/
+
+# ESP-IDF generated runtime configs (tracked defaults are explicitly allowed)
+/sdkconfig
+/sdkconfig.old
+/sdkconfig.local
+/sdkconfig.ci
+/sdkconfig.generated*
+/sdkconfig.*
+!/sdkconfig.defaults
+!/sdkconfig.defaults.*
+
+/recovery_app/sdkconfig
+/recovery_app/sdkconfig.old
+/recovery_app/sdkconfig.local
+/recovery_app/sdkconfig.*
+!/recovery_app/sdkconfig.defaults

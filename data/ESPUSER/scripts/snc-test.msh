@@ -1,0 +1,108 @@
+# MROS diagnostic smoke script.
+# Preferred run:
+#   mshell script run snc-test --keep-going
+# Fallback run:
+#   source -k /ESPUSER/scripts/snc-test.msh
+#
+# Output is written to /ESPUSER/snc.txt. If the device hardfaults, the last
+# BEGIN marker in the file shows the command that was being tested.
+
+echo "MROS diagnostic smoke started" > /ESPUSER/snc.txt
+echo "script=/ESPUSER/scripts/snc-test.msh" >> /ESPUSER/snc.txt
+echo "output=/ESPUSER/snc.txt" >> /ESPUSER/snc.txt
+echo "" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN date =====" >> /ESPUSER/snc.txt
+date | tee -a /ESPUSER/snc.txt
+echo "===== END date =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN uptime =====" >> /ESPUSER/snc.txt
+uptime | tee -a /ESPUSER/snc.txt
+echo "===== END uptime =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN free =====" >> /ESPUSER/snc.txt
+free | tee -a /ESPUSER/snc.txt
+echo "===== END free =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN ps =====" >> /ESPUSER/snc.txt
+ps | tee -a /ESPUSER/snc.txt
+echo "===== END ps =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN ps -l =====" >> /ESPUSER/snc.txt
+ps -l | tee -a /ESPUSER/snc.txt
+echo "===== END ps -l =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN status =====" >> /ESPUSER/snc.txt
+status | tee -a /ESPUSER/snc.txt
+echo "===== END status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN devices status =====" >> /ESPUSER/snc.txt
+devices status | tee -a /ESPUSER/snc.txt
+echo "===== END devices status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros perf status =====" >> /ESPUSER/snc.txt
+mros perf status | tee -a /ESPUSER/snc.txt
+echo "===== END mros perf status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros rtos status =====" >> /ESPUSER/snc.txt
+mros rtos status | tee -a /ESPUSER/snc.txt
+echo "===== END mros rtos status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN dpm status =====" >> /ESPUSER/snc.txt
+dpm status | tee -a /ESPUSER/snc.txt
+echo "===== END dpm status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN dpm tasks --json =====" >> /ESPUSER/snc.txt
+dpm tasks --json | tee -a /ESPUSER/snc.txt
+echo "===== END dpm tasks --json =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros wifi diag =====" >> /ESPUSER/snc.txt
+mros wifi diag | tee -a /ESPUSER/snc.txt
+echo "===== END mros wifi diag =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros security status =====" >> /ESPUSER/snc.txt
+mros security status | tee -a /ESPUSER/snc.txt
+echo "===== END mros security status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros audit list =====" >> /ESPUSER/snc.txt
+mros audit list | tee -a /ESPUSER/snc.txt
+echo "===== END mros audit list =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mshell perf --json =====" >> /ESPUSER/snc.txt
+mshell perf --json | tee -a /ESPUSER/snc.txt
+echo "===== END mshell perf --json =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mshell doctor --json =====" >> /ESPUSER/snc.txt
+mshell doctor --json | tee -a /ESPUSER/snc.txt
+echo "===== END mshell doctor --json =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mshell job status --json =====" >> /ESPUSER/snc.txt
+mshell job status --json | tee -a /ESPUSER/snc.txt
+echo "===== END mshell job status --json =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN robot math benchmark =====" >> /ESPUSER/snc.txt
+robot math benchmark | tee -a /ESPUSER/snc.txt
+echo "===== END robot math benchmark =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros sram status --detail =====" >> /ESPUSER/snc.txt
+mros sram status --detail | tee -a /ESPUSER/snc.txt
+echo "===== END mros sram status --detail =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros power locks =====" >> /ESPUSER/snc.txt
+mros power locks | tee -a /ESPUSER/snc.txt
+echo "===== END mros power locks =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros power trace =====" >> /ESPUSER/snc.txt
+mros power trace | tee -a /ESPUSER/snc.txt
+echo "===== END mros power trace =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros power status =====" >> /ESPUSER/snc.txt
+mros power status | tee -a /ESPUSER/snc.txt
+echo "===== END mros power status =====" >> /ESPUSER/snc.txt
+
+echo "===== BEGIN mros power temp =====" >> /ESPUSER/snc.txt
+mros power temp | tee -a /ESPUSER/snc.txt
+echo "===== END mros power temp =====" >> /ESPUSER/snc.txt
+
+echo "" >> /ESPUSER/snc.txt
+echo "MROS diagnostic smoke finished" >> /ESPUSER/snc.txt

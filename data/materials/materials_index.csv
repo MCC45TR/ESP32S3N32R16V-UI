@@ -1,0 +1,101 @@
+material_id,display_name,family,standard_hint,condition_temper,source_id,confidence,design_allowable_status
+AL1050_H14,Aluminum 1050-H14,aluminum,EN AW-1050A,H14,ASM_GENERIC,seed_typical,verify_before_release
+AL1060_H14,Aluminum 1060-H14,aluminum,AA 1060,H14,ASM_GENERIC,seed_typical,verify_before_release
+AL1100_H14,Aluminum 1100-H14,aluminum,AA 1100,H14,ASM_GENERIC,seed_typical,verify_before_release
+AL2011_T3,Aluminum 2011-T3,aluminum,AA 2011,T3,ASM_GENERIC,seed_typical,verify_before_release
+AL2014_T6,Aluminum 2014-T6,aluminum,AA 2014,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL2024_T3,Aluminum 2024-T3,aluminum,AA 2024,T3,NIST_ALUMINUM,seed_typical,verify_before_release
+AL3003_H14,Aluminum 3003-H14,aluminum,AA 3003,H14,ASM_GENERIC,seed_typical,verify_before_release
+AL5005A_H34,Aluminum 5005A-H34,aluminum,EN AW-5005A,H34,ASM_GENERIC,seed_typical,verify_before_release
+AL5052_H32,Aluminum 5052-H32,aluminum,AA 5052,H32,ASM_GENERIC,seed_typical,verify_before_release
+AL5083_H111,Aluminum 5083-H111,aluminum,AA 5083,H111,ASM_GENERIC,seed_typical,verify_before_release
+AL5754_H111,Aluminum 5754-H111,aluminum,AA 5754,H111,ASM_GENERIC,seed_typical,verify_before_release
+AL6005A_T6,Aluminum 6005A-T6,aluminum,EN AW-6005A,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL6060_T6,Aluminum 6060-T6,aluminum,EN AW-6060,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL6061_T6,Aluminum 6061-T6,aluminum,AA 6061,T6,NIST_ALUMINUM,seed_typical,verify_before_release
+AL6063_T5,Aluminum 6063-T5,aluminum,AA 6063,T5,ASM_GENERIC,seed_typical,verify_before_release
+AL6063_T6,Aluminum 6063-T6,aluminum,AA 6063,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL6082_T6,Aluminum 6082-T6,aluminum,EN AW-6082,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL6262_T6,Aluminum 6262-T6,aluminum,AA 6262,T6,ASM_GENERIC,seed_typical,verify_before_release
+AL7050_T7451,Aluminum 7050-T7451,aluminum,AA 7050,T7451,ASM_GENERIC,seed_typical,verify_before_release
+AL7075_T6,Aluminum 7075-T6,aluminum,AA 7075,T6,MATWEB_PUBLIC,seed_typical,verify_before_release
+AL7075_T651,Aluminum 7075-T651,aluminum,AA 7075,T651,MATWEB_PUBLIC,seed_typical,verify_before_release
+STEEL_ST37_2,Steel St37-2,steel_structural,DIN 17100,hot_rolled,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_S235JR,Steel S235JR,steel_structural,EN 10025,S235JR,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_S275JR,Steel S275JR,steel_structural,EN 10025,S275JR,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_S355JR,Steel S355JR,steel_structural,EN 10025,S355JR,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_A36,Steel ASTM A36,steel_structural,ASTM A36,hot_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1008_CR,Steel AISI 1008 CR,carbon_steel,AISI 1008,cold_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1010_CR,Steel AISI 1010 CR,carbon_steel,AISI 1010,cold_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1018_CR,Steel AISI 1018 CR,carbon_steel,AISI 1018,cold_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1020_HR,Steel AISI 1020 HR,carbon_steel,AISI 1020,hot_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1030_NORM,Steel AISI 1030 normalized,carbon_steel,AISI 1030,normalized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1040_NORM,Steel AISI 1040 normalized,carbon_steel,AISI 1040,normalized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_1045_NORM,Steel AISI 1045 normalized,carbon_steel,AISI 1045,normalized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL1050_HR,Steel AISI 1050 HR,carbon_steel,AISI 1050,hot_rolled,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_C35_NORM,Steel C35 normalized,carbon_steel,EN C35,normalized,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_C45_NORM,Steel C45 normalized,carbon_steel,EN C45,normalized,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_C60_NORM,Steel C60 normalized,carbon_steel,EN C60,normalized,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL4130_NORM,Steel AISI 4130 normalized,alloy_steel,AISI 4130,normalized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL4130_QT,Steel AISI 4130 Q&T,alloy_steel,AISI 4130,quenched_tempered,ASM_GENERIC,seed_typical,verify_before_release
+STEEL4140_NORM,Steel AISI 4140 normalized,alloy_steel,AISI 4140,normalized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL4140_QT,Steel AISI 4140 Q&T,alloy_steel,AISI 4140,quenched_tempered,ASM_GENERIC,seed_typical,verify_before_release
+STEEL4340_QT,Steel AISI 4340 Q&T,alloy_steel,AISI 4340,quenched_tempered,ASM_GENERIC,seed_typical,verify_before_release
+STEEL8620_CARB,Steel AISI 8620 carburized,alloy_steel,AISI 8620,carburized,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_16MNCR5_CARB,Steel 16MnCr5 carburized,alloy_steel,EN 16MnCr5,carburized,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_42CRMO4_QT,Steel 42CrMo4 Q&T,alloy_steel,EN 42CrMo4,quenched_tempered,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+STEEL_52100,Steel AISI 52100 bearing steel,bearing_steel,AISI 52100,hardened,ASM_GENERIC,seed_typical,verify_before_release
+STEEL_100CR6,Steel 100Cr6 bearing steel,bearing_steel,EN 100Cr6,hardened,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+SS_301_ANN,Stainless 301 annealed,stainless_steel,AISI 301,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_304_ANN,Stainless 304 annealed,stainless_steel,AISI 304,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_304L_ANN,Stainless 304L annealed,stainless_steel,AISI 304L,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_316_ANN,Stainless 316 annealed,stainless_steel,AISI 316,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_316L_ANN,Stainless 316L annealed,stainless_steel,AISI 316L,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_410_HT,Stainless 410 heat treated,stainless_steel,AISI 410,heat_treated,ASM_GENERIC,seed_typical,verify_before_release
+SS_420_HT,Stainless 420 heat treated,stainless_steel,AISI 420,heat_treated,ASM_GENERIC,seed_typical,verify_before_release
+SS_430_ANN,Stainless 430 annealed,stainless_steel,AISI 430,annealed,ASM_GENERIC,seed_typical,verify_before_release
+SS_17_4PH_H900,Stainless 17-4PH H900,stainless_steel,17-4PH,H900,ASM_GENERIC,seed_typical,verify_before_release
+SS_15_5PH_H1025,Stainless 15-5PH H1025,stainless_steel,15-5PH,H1025,ASM_GENERIC,seed_typical,verify_before_release
+TOOL_O1_HARD,Tool Steel O1 hardened,tool_steel,AISI O1,hardened,ASM_GENERIC,seed_typical,verify_before_release
+TOOL_A2_HARD,Tool Steel A2 hardened,tool_steel,AISI A2,hardened,ASM_GENERIC,seed_typical,verify_before_release
+TOOL_D2_HARD,Tool Steel D2 hardened,tool_steel,AISI D2,hardened,ASM_GENERIC,seed_typical,verify_before_release
+TOOL_H13_HARD,Tool Steel H13 hardened,tool_steel,AISI H13,hardened,ASM_GENERIC,seed_typical,verify_before_release
+TOOL_M2_HARD,Tool Steel M2 hardened,tool_steel,AISI M2,hardened,ASM_GENERIC,seed_typical,verify_before_release
+CAST_GRAY_G25,Gray Cast Iron G25,cast_iron,EN-GJL-250,as_cast,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+CAST_DUCTILE_400, Ductile Cast Iron 400,cast_iron,EN-GJS-400,as_cast,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+CAST_DUCTILE_600,Ductile Cast Iron 600,cast_iron,EN-GJS-600,as_cast,EN_STEEL_PUBLIC,seed_typical,verify_before_release
+TI_GRADE2,Titanium Grade 2,titanium,ASTM Grade 2,annealed,ASM_GENERIC,seed_typical,verify_before_release
+TI_GRADE5,Titanium Grade 5 Ti-6Al-4V,titanium,Ti-6Al-4V,annealed,ASM_GENERIC,seed_typical,verify_before_release
+CU_C110,Copper C110 ETP,copper_alloy,UNS C11000,annealed,ASM_GENERIC,seed_typical,verify_before_release
+BRASS_C260,Cartridge Brass C260,copper_alloy,UNS C26000,half_hard,ASM_GENERIC,seed_typical,verify_before_release
+BRASS_C360,Free-Cutting Brass C360,copper_alloy,UNS C36000,half_hard,ASM_GENERIC,seed_typical,verify_before_release
+BRONZE_C932,Bearing Bronze C932,copper_alloy,UNS C93200,cast,ASM_GENERIC,seed_typical,verify_before_release
+BRONZE_C954,Aluminum Bronze C954,copper_alloy,UNS C95400,cast,ASM_GENERIC,seed_typical,verify_before_release
+MAG_AZ31B,Magnesium AZ31B,magnesium,AZ31B,wrought,ASM_GENERIC,seed_typical,verify_before_release
+MAG_AZ91D,Magnesium AZ91D,magnesium,AZ91D,cast,ASM_GENERIC,seed_typical,verify_before_release
+POM_C,Acetal POM-C,polymer,ISO POM-C,natural,ASM_GENERIC,seed_typical,verify_before_release
+PA6,Polyamide PA6,polymer,PA6,dry,ASM_GENERIC,seed_typical,verify_before_release
+PA66,Polyamide PA66,polymer,PA66,dry,ASM_GENERIC,seed_typical,verify_before_release
+PA66_GF30,Polyamide PA66 GF30,polymer,PA66-GF30,dry,ASM_GENERIC,seed_typical,verify_before_release
+PTFE,PTFE,polymer,PTFE,virgin,ASM_GENERIC,seed_typical,verify_before_release
+PEEK,PEEK,polymer,PEEK,unfilled,ASM_GENERIC,seed_typical,verify_before_release
+PEEK_GF30,PEEK GF30,polymer,PEEK-GF30,unfilled,ASM_GENERIC,seed_typical,verify_before_release
+ABS,ABS,polymer,ABS,general_purpose,ASM_GENERIC,seed_typical,verify_before_release
+PC,Polycarbonate PC,polymer,PC,general_purpose,ASM_GENERIC,seed_typical,verify_before_release
+PETG,PETG,polymer,PETG,general_purpose,ASM_GENERIC,seed_typical,verify_before_release
+PLA,PLA,polymer,PLA,printed_isotropic_seed,ASM_GENERIC,seed_typical,verify_before_release
+NYLON_CF,Carbon Fiber Nylon,polymer_composite,PA-CF,printed_seed,ASM_GENERIC,seed_typical,verify_before_release
+G10_FR4,G10/FR4 Glass Epoxy,composite,G10 FR4,laminate,ASM_GENERIC,seed_typical,verify_before_release
+CARBON_EPOXY_QI,Carbon Epoxy Quasi-Isotropic,composite,CFRP quasi-isotropic,laminate,ASM_GENERIC,seed_typical,verify_before_release
+GAROLITE_G11,Garolite G11,composite,G11,laminate,ASM_GENERIC,seed_typical,verify_before_release
+RUBBER_NBR70,NBR 70A Rubber,elastomer,NBR,70A,ASM_GENERIC,seed_typical,verify_before_release
+RUBBER_PU90,Polyurethane 90A,elastomer,PU,90A,ASM_GENERIC,seed_typical,verify_before_release
+RUBBER_SILICONE50,Silicone Rubber 50A,elastomer,VMQ,50A,ASM_GENERIC,seed_typical,verify_before_release
+WOOD_BIRCHPLY,Birch Plywood,wood,plywood,laminated,ASM_GENERIC,seed_typical,verify_before_release
+MDF,Medium Density Fiberboard,wood,MDF,generic,ASM_GENERIC,seed_typical,verify_before_release
+GLASS_SODA_LIME,Soda Lime Glass,ceramic_glass,soda_lime,annealed,ASM_GENERIC,seed_typical,verify_before_release
+CERAMIC_ALUMINA96,Alumina 96%,ceramic_glass,Al2O3 96,sintered,ASM_GENERIC,seed_typical,verify_before_release
+AL7050_T7451,Aluminum 7050-T7451,aluminum,AA 7050,T7451,NIST_ALUMINUM,seed_typical,verify_before_release
+STEEL1144_STRESSPROOF,Steel AISI 1144 stressproof,carbon_steel,AISI 1144,cold_drawn_stress_relieved,ASM_GENERIC,seed_typical,verify_before_release
+SS_440C_HARD,Stainless 440C hardened,stainless_steel,AISI 440C,hardened,ASM_GENERIC,seed_typical,verify_before_release
+INCONEL_718_AGE,Inconel 718 aged,nickel_alloy,UNS N07718,aged,ASM_GENERIC,seed_typical,verify_before_release

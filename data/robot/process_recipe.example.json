@@ -1,0 +1,39 @@
+{
+  "schema": "mros.robot_process_recipe.v1",
+  "recipe_id": "example_plasma_coupon_001",
+  "mode_id": "plasma_air_mild_steel_medium",
+  "template_id": "plasma_medium_seed",
+  "material_family": "mild_steel",
+  "material_thickness_mm": 10,
+  "requested_feed_mm_min": 900,
+  "machine_vendor_chart_id": "TBD_PLASMA_MACHINE_CHART_ROW",
+  "wps_id": "",
+  "tool_tcp_profile": "plasma_tcp",
+  "requires_dry_run": true,
+  "interlocks_required": [
+    "estop_closed",
+    "homed_axes",
+    "soft_limits_valid",
+    "dry_run_passed",
+    "can_heartbeat_ok",
+    "following_error_ok",
+    "work_clamp_ok",
+    "shielding_or_plasma_gas_ok",
+    "plasma_arc_ok",
+    "plasma_thc_height_ok",
+    "fire_watch_ready"
+  ],
+  "process_parameters": {
+    "amperage_a": null,
+    "gas_pressure_bar": null,
+    "pierce_height_mm": null,
+    "cut_height_mm": null,
+    "pierce_delay_s": null,
+    "kerf_width_mm": null
+  },
+  "path": {
+    "units": "mm",
+    "segments": []
+  },
+  "notes": "Example only. Real recipes must bind to a vendor chart row or qualified WPS before process energy is enabled."
+}

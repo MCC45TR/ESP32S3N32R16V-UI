@@ -1,0 +1,326 @@
+
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MROS Giriş</title><link rel="stylesheet" href="/style.css?v=20260510_ui_auth_wifi_r1"></head>
+<body class="login-screen">
+<div class="login-card">
+  <aside class="login-aside">
+    <div>
+      <div class="login-brand">MROS 7DOF</div>
+      <div class="login-brand-sub">Kontrol paneline guvenli erisim. Oturum acma ve ilk kurulum adimlari bu ekrandan yonetilir.</div>
+    </div>
+    <div class="login-footnote">Bu ekran sistem temasini kullanir. Tanimli hesap yoksa yeni kullanici olusturma adimi otomatik acilir.</div>
+  </aside>
+  <div class="left-form">
+    <h1 id="authTitle">Giriş</h1>
+    <p id="authSubtitle">Yalnızca yetkili personel</p>
+    <p id="authHint" class="auth-hint">Sistemde kullanıcı varsa giriş yapın.</p>
+
+    <div id="loginPanel">
+      <label>Kullanıcı Adı</label>
+      <input type="text" id="user" placeholder="Kullanıcı adı">
+      <label>Şifre</label>
+      <input type="password" id="pass" placeholder="Şifre">
+      <button class="btn" id="lbtn">GİRİŞ YAP</button>
+      <div id="loginMsg" class="login-status"></div>
+    </div>
+
+    <div id="setupPanel" style="display:none;">
+      <label>Yeni Kullanıcı Adı</label>
+      <input type="text" id="new_user" placeholder="Kullanıcı adı (3-32 karakter)">
+      <label>Şifre</label>
+      <input type="password" id="new_pass" placeholder="Şifre (8-64 karakter)">
+      <label>Şifre Tekrarı</label>
+      <input type="password" id="new_pass2" placeholder="Şifre tekrar">
+      <label style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+        <input type="checkbox" id="root_same" checked style="width:auto;"> Kök kullanıcı şifresi aynı olsun
+      </label>
+      <div id="rootPassPanel" style="display:none;">
+        <label>Kök Kullanıcı Şifresi</label>
+        <input type="password" id="root_pass" placeholder="root şifresi (8-96 karakter)">
+        <label>Kök Şifre Tekrarı</label>
+        <input type="password" id="root_pass2" placeholder="root şifre tekrar">
+      </div>
+      <label>Profil Resmi</label>
+      <div id="avatarGrid" class="login-chip-grid" style="margin-bottom:8px;"></div>
+      <input type="file" id="avatar_file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+      <div class="login-footnote" style="margin:4px 0 8px;">Özel profil resmi en fazla 128KB olmalı.</div>
+      <label>Kullanıcı Oluşturma Şifresi</label>
+      <input type="password" id="setup_pass" placeholder="Onaylama şifresini girin">
+      <button class="btn" id="sbtn">KULLANICI OLUŞTUR</button>
+      <div id="setupMsg" class="login-status"></div>
+    </div>
+  </div>
+</div>
+<script>
+const UI_COLOR_PALETTES = {
+  mros: {
+    dark: ['#302c2c', '#4e4848', '#3d3838', '#f0f2f3', '#b5ea6a', '#9beb5d', '#7ea8f2', '#625b5b', '#ea7b7b', '#eac27c'],
+    light: ['#f6f8f3', '#ffffff', '#e7ecdf', '#172016', '#5e8f2f', '#79ad44', '#416fb7', '#cbd5c4', '#c84f5a', '#b47a20']
+  },
+  graphite: {
+    dark: ['#15171b', '#23262d', '#1c1f25', '#edf2f7', '#a8b3c7', '#c0cad8', '#6f9de8', '#39404b', '#ef767a', '#e6b86f'],
+    light: ['#f4f6f8', '#ffffff', '#e4e8ee', '#1b2028', '#5c6678', '#798395', '#426fb5', '#cdd3dd', '#c75056', '#a8732a']
+  },
+  ocean: {
+    dark: ['#081820', '#12303d', '#0d2632', '#e9f8ff', '#58d5c9', '#3bbdad', '#72a7ff', '#1f4b5d', '#ff7373', '#f5c86f'],
+    light: ['#effcff', '#ffffff', '#d9f0f4', '#0c2630', '#1b948f', '#157c78', '#386fc6', '#bad8df', '#c84f54', '#aa7a21']
+  },
+  ember: {
+    dark: ['#211916', '#3b2b25', '#2c211d', '#fff2e8', '#f2b36d', '#d8944f', '#7fa6ff', '#5a4036', '#ef6f6c', '#ffd166'],
+    light: ['#fff8f1', '#ffffff', '#f2e3d6', '#251711', '#c97832', '#a95f25', '#456fc3', '#dcc8b9', '#c9504b', '#a87616']
+  },
+  violet: {
+    dark: ['#191622', '#2b2638', '#231e2f', '#f4efff', '#c79cff', '#a87df0', '#71d0ff', '#443a55', '#ff7c9d', '#f0c76e'],
+    light: ['#fbf8ff', '#ffffff', '#ece4f7', '#21182e', '#8155c7', '#6742a6', '#3274aa', '#d6cbe4', '#c85674', '#a5751b']
+  },
+  slate: {
+    dark: ['#111b1c', '#203032', '#192729', '#eaf8f5', '#8fd8c3', '#67bda6', '#7aa7ff', '#33494c', '#ef7878', '#e7c06f'],
+    light: ['#f3fbf9', '#ffffff', '#dfebe8', '#132423', '#358e7a', '#2d7565', '#426fc7', '#c7d7d4', '#c75353', '#9e7422']
+  }
+};
+
+function applyLoginTheme(themeMode, colorPalette){
+  const root = document.documentElement;
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  const mode = themeMode === 'system' ? (prefersLight ? 'light' : 'dark') :
+               (themeMode === 'light' ? 'light' : 'dark');
+  const id = UI_COLOR_PALETTES[colorPalette] ? colorPalette : 'mros';
+  const c = UI_COLOR_PALETTES[id][mode] || UI_COLOR_PALETTES.mros.dark;
+  root.dataset.themeMode = mode;
+  root.dataset.colorPalette = id;
+  root.style.setProperty('--bg', c[0]);
+  root.style.setProperty('--surface', c[1]);
+  root.style.setProperty('--surface-var', c[2]);
+  root.style.setProperty('--text', c[3]);
+  root.style.setProperty('--primary', c[4]);
+  root.style.setProperty('--primary-variant', c[5]);
+  root.style.setProperty('--secondary', c[6]);
+  root.style.setProperty('--border', c[7]);
+  root.style.setProperty('--on-primary', mode === 'light' ? '#ffffff' : '#121212');
+  root.style.setProperty('--muted', 'color-mix(in srgb, ' + c[3] + ' 62%, ' + c[0] + ')');
+  root.style.setProperty('--input-bg', 'color-mix(in srgb, ' + c[1] + ' 72%, ' + c[0] + ')');
+  root.style.setProperty('--input-border', c[7]);
+  root.style.setProperty('--accent-blue', c[6]);
+  root.style.setProperty('--accent-mint', c[6]);
+  root.style.setProperty('--text-muted', 'color-mix(in srgb, ' + c[3] + ' 68%, ' + c[0] + ')');
+}
+
+function setAuthMode(setupRequired){
+  const loginPanel = document.getElementById('loginPanel');
+  const setupPanel = document.getElementById('setupPanel');
+  const title = document.getElementById('authTitle');
+  const subtitle = document.getElementById('authSubtitle');
+  const hint = document.getElementById('authHint');
+  if (setupRequired) {
+    title.innerText = 'Yeni Kullanıcı Oluştur';
+    subtitle.innerText = 'İlk kurulum';
+    hint.innerText = 'Henüz kullanıcı yok. Devam etmek için onaylama şifresini girin.';
+    loginPanel.style.display = 'none';
+    setupPanel.style.display = 'block';
+  } else {
+    title.innerText = 'Giriş';
+    subtitle.innerText = 'Yalnızca yetkili personel';
+    hint.innerText = 'Sistemde kullanıcı varsa giriş yapın.';
+    loginPanel.style.display = 'block';
+    setupPanel.style.display = 'none';
+  }
+}
+
+async function loadAuthState(){
+  try {
+    const r = await fetch('/api/auth/state', { cache:'no-store' });
+    const d = await r.json();
+    applyLoginTheme(d.themeMode || 'dark', d.colorPalette || 'mros');
+    setAuthMode(!!d.setup_required);
+  } catch(_) {
+    applyLoginTheme('dark', 'mros');
+    setAuthMode(false);
+  }
+}
+
+document.getElementById('lbtn').onclick = async function(){
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value;
+  const btn = this;
+  const msg = document.getElementById('loginMsg');
+  if (!u || !p) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Kullanıcı adı ve şifre gerekli.';
+    return;
+  }
+  btn.disabled = true;
+  btn.innerText = 'DOĞRULANIYOR...';
+  msg.style.color = '#A6ADB4';
+  msg.innerText = 'Bilgiler doğrulanıyor...';
+  try {
+    const body = 'user=' + encodeURIComponent(u) + '&pass=' + encodeURIComponent(p);
+    const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
+    const d = await r.json();
+    if (d.success) {
+      window.location.href = '/';
+      return;
+    }
+    if (d.setup_required) {
+      setAuthMode(true);
+      msg.style.color = '#EA6A6A';
+      msg.innerText = d.error || 'İlk kurulum gerekli.';
+    } else {
+      msg.style.color = '#EA6A6A';
+      msg.innerText = d.error || 'Kullanıcı adı veya şifre hatalı.';
+    }
+  } catch (_) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'İstek başarısız.';
+  }
+  btn.disabled = false;
+  btn.innerText = 'GİRİŞ YAP';
+};
+
+document.getElementById('sbtn').onclick = async function(){
+  const user = document.getElementById('new_user').value.trim();
+  const pass = document.getElementById('new_pass').value;
+  const pass2 = document.getElementById('new_pass2').value;
+  const rootSame = document.getElementById('root_same').checked;
+  const rootPass = rootSame ? pass : document.getElementById('root_pass').value;
+  const rootPass2 = rootSame ? pass2 : document.getElementById('root_pass2').value;
+  const setupPass = document.getElementById('setup_pass').value;
+  const btn = this;
+  const msg = document.getElementById('setupMsg');
+
+  if (user.length < 3 || user.length > 32) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Kullanıcı adı 3-32 karakter olmalı.';
+    return;
+  }
+  if (pass.length < 8 || pass.length > 64) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Şifre 8-64 karakter olmalı.';
+    return;
+  }
+  if (pass !== pass2) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Şifre tekrar alanı eşleşmiyor.';
+    return;
+  }
+  if (rootPass.length < 8 || rootPass.length > 96) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Kök kullanıcı şifresi 8-96 karakter olmalı.';
+    return;
+  }
+  if (rootPass !== rootPass2) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Kök kullanıcı şifre tekrarı eşleşmiyor.';
+    return;
+  }
+  if (!setupPass) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Kullanıcı oluşturma şifresi gerekli.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = 'OLUŞTURULUYOR...';
+  msg.style.color = '#A6ADB4';
+  msg.innerText = 'Kullanıcı kaydediliyor...';
+
+  try {
+    const body =
+      'user=' + encodeURIComponent(user) +
+      '&pass=' + encodeURIComponent(pass) +
+      '&pass2=' + encodeURIComponent(pass2) +
+      '&root_same=' + encodeURIComponent(rootSame ? '1' : '0') +
+      '&root_pass=' + encodeURIComponent(rootPass) +
+      '&root_pass2=' + encodeURIComponent(rootPass2) +
+      '&avatar=' + encodeURIComponent(selectedAvatar) +
+      '&avatar_data=' + encodeURIComponent(selectedAvatarData || '') +
+      '&setup_pass=' + encodeURIComponent(setupPass);
+    const r = await fetch('/api/register', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body
+    });
+    const d = await r.json();
+    if (d.success) {
+      msg.style.color = '#9BEB5D';
+      msg.innerText = 'Kullanıcı oluşturuldu. Yönlendiriliyor...';
+      window.location.href = '/';
+      return;
+    }
+    msg.style.color = '#EA6A6A';
+    msg.innerText = d.error || 'Kullanıcı oluşturulamadı.';
+  } catch (_) {
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'İstek başarısız.';
+  }
+  btn.disabled = false;
+  btn.innerText = 'KULLANICI OLUŞTUR';
+};
+
+const defaultAvatars = [
+  ['avatar-1', '/assets/avatars/avatar-1.svg'],
+  ['avatar-2', '/assets/avatars/avatar-2.svg'],
+  ['avatar-3', '/assets/avatars/avatar-3.svg'],
+  ['avatar-4', '/assets/avatars/avatar-4.svg'],
+  ['avatar-5', '/assets/avatars/avatar-5.svg'],
+  ['avatar-6', '/assets/avatars/avatar-6.svg']
+];
+let selectedAvatar = 'avatar-1';
+let selectedAvatarData = '';
+
+function renderAvatars(){
+  const grid = document.getElementById('avatarGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  defaultAvatars.forEach(function(item){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('data-avatar', item[0]);
+    btn.style.cssText =
+      'border:0; background:' + (selectedAvatar === item[0] ? 'color-mix(in srgb, var(--primary) 78%, var(--surface))' : 'color-mix(in srgb, var(--surface-var) 88%, var(--bg))') +
+      '; border-radius:8px; padding:6px; cursor:pointer;';
+    btn.innerHTML = '<img src="' + item[1] + '" alt="" style="width:44px; height:44px; display:block; margin:auto;">';
+    btn.onclick = function(){
+      selectedAvatar = item[0];
+      selectedAvatarData = '';
+      document.getElementById('avatar_file').value = '';
+      renderAvatars();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+document.getElementById('root_same').addEventListener('change', function(){
+  document.getElementById('rootPassPanel').style.display = this.checked ? 'none' : 'block';
+});
+document.getElementById('avatar_file').addEventListener('change', function(){
+  const file = this.files && this.files[0];
+  const msg = document.getElementById('setupMsg');
+  if (!file) return;
+  if (file.size > 128 * 1024) {
+    this.value = '';
+    selectedAvatarData = '';
+    msg.style.color = '#EA6A6A';
+    msg.innerText = 'Profil resmi 128KB sınırını aşıyor.';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(){
+    selectedAvatar = 'custom';
+    selectedAvatarData = String(reader.result || '');
+    renderAvatars();
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('pass').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') document.getElementById('lbtn').click();
+});
+document.getElementById('new_pass2').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') document.getElementById('sbtn').click();
+});
+document.getElementById('setup_pass').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') document.getElementById('sbtn').click();
+});
+renderAvatars();
+loadAuthState();
+</script>
+</body></html>

@@ -1,0 +1,8 @@
+joint_id,link_frame_id,joint_index,axis_source,gear_ratio,gear_efficiency,motor_continuous_torque_nm,motor_peak_torque_nm,output_continuous_torque_nm,output_peak_torque_nm,holding_brake_torque_nm,status,notes
+J1,J1_TURRET,0,link_frame_axis,80,0.80,2.0,4.34,82.0,178.0,0,selected_prr_scara,"M8025(B)E25B80L first-arm axis from atar_m_series_actuator_specs.csv; conservative continuous output uses 82 Nm reducer-rated row rather than 85 Nm output row."
+J2,J2_SHOULDER,1,link_frame_axis,50,0.80,1.0,1.29,34.0,44.0,0,selected_prr_scara,"M8010(B)E17B50L second-arm axis from atar_m_series_actuator_specs.csv."
+J3,J3_ELBOW,2,link_frame_axis,50,0.30,0.3,0.73,3.2,7.8,0,selected_prr_scara,"M4210E14B50L vertical PRR axis through 4 mm trapezoidal screw; output torque remains Nm here, while prr_scara_axis_map.csv stores estimated linear thrust."
+J4,J4_WRIST_A,3,link_frame_axis,70,0.70,0.8,2.4,39.2,117.6,0,placeholder,Seed reducer/motor values; replace after actuator selection.
+J5,J5_WRIST_B,4,link_frame_axis,70,0.70,0.6,1.8,29.4,88.2,0,placeholder,Seed reducer/motor values; replace after actuator selection.
+J6,J6_WRIST_C,5,link_frame_axis,50,0.68,0.4,1.2,13.6,40.8,0,placeholder,Seed reducer/motor values; replace after actuator selection.
+J7,J7_TOOL,6,link_frame_axis,30,0.65,0.25,0.75,4.9,14.6,0,placeholder,Seed reducer/motor values; replace after actuator selection.

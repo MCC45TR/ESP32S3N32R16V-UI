@@ -1,0 +1,15 @@
+bearing_mount_id,placement_id,joint_id,link_frame_id,local_x_mm,local_y_mm,local_z_mm,axis_x,axis_y,axis_z,bearing_spacing_pair_id,support_type,load_share_factor,status,notes
+J1-BRG-A,J1-BRG-A,J1,J1_TURRET,0,0,-30,0,0,1,J1-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J1-BRG-B,J1-BRG-B,J1,J1_TURRET,0,0,30,0,0,1,J1-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J2-BRG-A,J2-BRG-A,J2,J2_SHOULDER,0,0,-30,0,0,1,J2-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J2-BRG-B,J2-BRG-B,J2,J2_SHOULDER,0,0,30,0,0,1,J2-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J3-BRG-A,J3-BRG-A,J3,J3_ELBOW,0,0,-25,0,0,1,J3-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J3-BRG-B,J3-BRG-B,J3,J3_ELBOW,0,0,25,0,0,1,J3-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J4-BRG-A,J4-BRG-A,J4,J4_WRIST_A,0,0,-20,0,0,1,J4-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J4-BRG-B,J4-BRG-B,J4,J4_WRIST_A,0,0,20,0,0,1,J4-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J5-BRG-A,J5-BRG-A,J5,J5_WRIST_B,0,0,-18,0,0,1,J5-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J5-BRG-B,J5-BRG-B,J5,J5_WRIST_B,0,0,18,0,0,1,J5-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J6-BRG-A,J6-BRG-A,J6,J6_WRIST_C,0,0,-15,0,0,1,J6-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J6-BRG-B,J6-BRG-B,J6,J6_WRIST_C,0,0,15,0,0,1,J6-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J7-BRG-A,J7-BRG-A,J7,J7_TOOL,0,0,-12,0,0,1,J7-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.
+J7-BRG-B,J7-BRG-B,J7,J7_TOOL,0,0,12,0,0,1,J7-PAIR-A,radial_axial,1,placeholder,Local coordinates; replace after final CAD.

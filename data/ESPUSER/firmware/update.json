@@ -1,0 +1,16 @@
+{
+  "state": "",
+  "target": "",
+  "target_display": "",
+  "backup_path": "",
+  "sha256": "",
+  "size": 0,
+  "version": "",
+  "target_partition": "app0",
+  "recovery_partition": "recovery",
+  "running_partition": "",
+  "attempt": 0,
+  "max_attempts": 2,
+  "max_boots": 2,
+  "confirm_timeout_sec": 30
+}

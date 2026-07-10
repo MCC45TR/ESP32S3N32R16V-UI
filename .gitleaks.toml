@@ -1,0 +1,11 @@
+title = "MROS ESP32-S3 public snapshot policy"
+
+[allowlist]
+description = "Verified upstream crypto parser/test-vector source and one localStorage key name"
+paths = [
+  '''^components/wolfssl/''',
+  '''^components/wolfssh/''',
+]
+regexes = [
+  '''mros_ik_traj_scale_v1''',
+]
