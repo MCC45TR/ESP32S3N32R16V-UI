@@ -9,10 +9,12 @@
 #include "WString.h"
 #include <cstdio>
 #include <cstring>
+#include <vector>
 #include <string.h>
 #include "src/drivers/utils/mros_console.h"
 #include "src/comm_interfaces/protocols/protocol_def.h"
 #include "src/platform/mros_uart.h"
+#include "src/security/uart_secure.h"
 #include "src/shell/mshell_remote.h"
 #include "src/web/server/web_server.h"
 #include "src/web/server/wifi_manager.h"
@@ -37,11 +39,7 @@ static size_t g_system_logs_size = 0;
 static size_t g_system_logs_total_written = 0;
 static SemaphoreHandle_t g_system_logs_mutex = nullptr;
 [[maybe_unused]] static bool g_system_logs_init_failed = false;
-static constexpr size_t kT41LineBufferSize = 1024U;
 static constexpr size_t kT41CobsFrameBufferSize = 1536U;
-static char g_line_buf_t41[kT41LineBufferSize + 16U] = {};
-static size_t g_line_len_t41 = 0U;
-static bool g_line_truncated_t41 = false;
 static uint8_t g_cobs_frame_buf_t41[kT41CobsFrameBufferSize] = {};
 static size_t g_cobs_frame_len_t41 = 0U;
 static bool g_cobs_frame_truncated_t41 = false;
@@ -236,26 +234,30 @@ static uint8_t calc_crc8(const uint8_t *data, size_t len) {
 
 // --- COBS Encoder ---
 static size_t COBS_Encode(const void *data, size_t length, uint8_t *buffer) {
-  uint8_t *encode = buffer;
-  uint8_t *codep = encode++;
-  uint8_t code = 1;
-  const uint8_t *byte = (const uint8_t *)data;
-
-  for (size_t i = 0; i < length; i++) {
-    if (byte[i] != 0) {
-      *encode++ = byte[i];
-      code++;
+  if (buffer == nullptr || (data == nullptr && length != 0U)) return 0U;
+  const uint8_t* input = static_cast<const uint8_t*>(data);
+  size_t read_index = 0U;
+  size_t write_index = 1U;
+  size_t code_index = 0U;
+  uint8_t code = 1U;
+  while (read_index < length) {
+    if (input[read_index] == 0U) {
+      buffer[code_index] = code;
+      code = 1U;
+      code_index = write_index++;
+      ++read_index;
+      continue;
     }
-    if (byte[i] == 0 || code == 0xFF) {
-      *codep = code;
-      code = 1;
-      codep = encode;
-      if (byte[i] == 0 || code == 0xFF)
-        encode++;
+    buffer[write_index++] = input[read_index++];
+    ++code;
+    if (code == 0xFFU) {
+      buffer[code_index] = code;
+      code = 1U;
+      code_index = write_index++;
     }
   }
-  *codep = code;
-  return (size_t)(encode - buffer);
+  buffer[code_index] = code;
+  return write_index;
 }
 
 static bool COBS_Decode(const uint8_t* data,
@@ -290,6 +292,26 @@ static bool COBS_Decode(const uint8_t* data,
   }
   *out_len = write_index;
   return true;
+}
+
+static bool write_cobs_payload(const uint8_t* data, const size_t len) {
+  if ((data == nullptr && len != 0U) || len > kT41CobsFrameBufferSize) return false;
+  uint8_t encoded[kT41CobsFrameBufferSize + 8U] = {};
+  const size_t encoded_len = COBS_Encode(data, len, encoded);
+  if (encoded_len == 0U || encoded_len + 1U > sizeof(encoded)) return false;
+  encoded[encoded_len] = 0U;
+  return mros::platform::mros_uart_write(UART_NUM_1, encoded, encoded_len + 1U) ==
+         static_cast<int>(encoded_len + 1U);
+}
+
+static bool seal_and_write(const uint8_t frame_type, const uint8_t* data, const size_t len) {
+  std::vector<uint8_t> sealed;
+  std::string error;
+  if (!mros::security::uart_secure::seal(frame_type, data, len, &sealed, &error)) {
+    ESP_LOGW(kUartTag, "secure UART seal failed: %s", error.c_str());
+    return false;
+  }
+  return write_cobs_payload(sealed.data(), sealed.size());
 }
 
 static mros::platform::UartConfig uart1_config() {
@@ -337,12 +359,13 @@ static void fill_status_ip(uint8_t ip[4], const String& text) {
 }
 
 void uart1_cobs_init() {
+  mros::security::uart_secure::init();
   QueueHandle_t event_queue = nullptr;
   if (!mros::platform::mros_uart_init(uart1_config(), &event_queue)) {
     ESP_LOGE(kUartTag, "UART1 init failed");
   } else {
     (void)event_queue;
-    (void)mros::platform::mros_uart_write_line(UART_NUM_1, "STATUS:BOOT");
+    (void)uart1_cobs_send_text_line("STATUS:BOOT");
   }
   (void)ensureSystemLogsStorageReady();
 }
@@ -391,11 +414,7 @@ static void sendUARTStatus() {
   stat_pkt.crc8 =
       calc_crc8(reinterpret_cast<const uint8_t*>(&stat_pkt), sizeof(UART_Wifi_Status_t) - 1U);
 
-  uint8_t cobs_buf[96];
-  size_t cobs_len = COBS_Encode(&stat_pkt, sizeof(UART_Wifi_Status_t), cobs_buf);
-  cobs_buf[cobs_len++] = 0x00; // Delimiter
-
-  (void)mros::platform::mros_uart_write(UART_NUM_1, cobs_buf, cobs_len);
+  (void)seal_and_write(2U, reinterpret_cast<const uint8_t*>(&stat_pkt), sizeof(stat_pkt));
 }
 
 void appendSystemLog(const char* source, String line) {
@@ -427,21 +446,14 @@ bool uart1_cobs_send_text_line(const char* text) {
   if (text == nullptr) {
     return false;
   }
-  return mros::platform::mros_uart_write_line(UART_NUM_1, text) > 0;
+  return seal_and_write(1U, reinterpret_cast<const uint8_t*>(text), std::strlen(text));
 }
 
 bool uart1_cobs_send_binary_frame(const uint8_t* data, const size_t len) {
   if (data == nullptr || len == 0U || len > 1200U) {
     return false;
   }
-  uint8_t encoded[kT41CobsFrameBufferSize + 8U] = {};
-  const size_t encoded_len = COBS_Encode(data, len, encoded);
-  if (encoded_len == 0U || encoded_len + 1U > sizeof(encoded)) {
-    return false;
-  }
-  encoded[encoded_len] = 0x00U;
-  return mros::platform::mros_uart_write(UART_NUM_1, encoded, encoded_len + 1U) ==
-         static_cast<int>(encoded_len + 1U);
+  return seal_and_write(2U, data, len);
 }
 
 void uart1_cobs_set_log_noise_mode(UartLogNoiseMode mode) {
@@ -468,6 +480,41 @@ const char* uart1_cobs_log_noise_mode_name(UartLogNoiseMode mode) {
   }
 }
 
+static void process_decoded_payload(const uint8_t* decoded, const size_t decoded_len) {
+  std::vector<uint8_t> plaintext;
+  uint8_t frame_type = 0U;
+  std::string error;
+  if (!mros::security::uart_secure::open(decoded, decoded_len, &plaintext, &frame_type, &error)) {
+    ESP_LOGW(kUartTag, "secure UART open failed: %s frame_len=%lu",
+             error.c_str(), static_cast<unsigned long>(decoded_len));
+    return;
+  }
+  const bool is_msh1 = plaintext.size() >= 4U &&
+                       std::memcmp(plaintext.data(), "MSH1", 4U) == 0;
+  if (frame_type == 2U || is_msh1) {
+    if (is_msh1) {
+      (void)mros::shell::remote::handle_uart_binary_frame(plaintext.data(), plaintext.size());
+    } else {
+      mros::shell::remote::note_plain_uart_activity();
+    }
+    return;
+  }
+  if (plaintext.empty()) return;
+  std::string line(plaintext.begin(), plaintext.end());
+  if (mros::shell::remote::handle_uart_line(line.c_str())) return;
+
+  String line_with_nl(line.c_str());
+  line_with_nl += '\n';
+  appendSystemLog("t41", line_with_nl);
+  mros::shell::remote::note_plain_uart_activity();
+  if (line == "CMD:WIFI_ON") {
+    wifi_manager_set_enabled(true);
+    wifi_manager_request_reconnect();
+  } else if (line == "CMD:WIFI_OFF") {
+    wifi_manager_set_enabled(false);
+  }
+}
+
 static void process_uart1_input() {
   uint8_t b = 0U;
   while (mros::platform::mros_uart_available(UART_NUM_1) > 0 &&
@@ -481,62 +528,14 @@ static void process_uart1_input() {
                                             decoded,
                                             sizeof(decoded),
                                             &decoded_len);
-        if (decoded_ok && decoded_len >= 4U &&
-            std::memcmp(decoded, "MSH1", 4U) == 0) {
-          (void)mros::shell::remote::handle_uart_binary_frame(decoded, decoded_len);
-        } else if (!decoded_ok) {
-          mros::shell::remote::note_uart_binary_decode_error();
+        if (decoded_ok) {
+          process_decoded_payload(decoded, decoded_len);
         } else {
-          mros::shell::remote::note_plain_uart_activity();
+          mros::shell::remote::note_uart_binary_decode_error();
         }
       } else if (g_cobs_frame_truncated_t41) {
         mros::shell::remote::note_uart_binary_decode_error();
       }
-      g_cobs_frame_len_t41 = 0U;
-      g_cobs_frame_truncated_t41 = false;
-      g_line_len_t41 = 0U;
-      g_line_buf_t41[0] = '\0';
-      g_line_truncated_t41 = false;
-      continue;
-    }
-
-    if (b == '\r') {
-      continue;
-    }
-
-    if (b == '\n') {
-      if (g_line_len_t41 > 0U) {
-        g_line_buf_t41[g_line_len_t41] = '\0';
-        if (g_line_truncated_t41) {
-          constexpr const char* kTruncSuffix = " [TRUNC]";
-          constexpr size_t kTruncSuffixLen = 8U;
-          if ((g_line_len_t41 + kTruncSuffixLen) < sizeof(g_line_buf_t41)) {
-            std::memcpy(g_line_buf_t41 + g_line_len_t41, kTruncSuffix,
-                        kTruncSuffixLen + 1U);
-            g_line_len_t41 += kTruncSuffixLen;
-          }
-        }
-        String line_with_nl;
-        line_with_nl.reserve(g_line_len_t41 + 2U);
-        line_with_nl += g_line_buf_t41;
-        line_with_nl += '\n';
-        if (mros::shell::remote::handle_uart_line(g_line_buf_t41)) {
-          // mshell protocol frames are control traffic, not log lines.
-        } else {
-          appendSystemLog("t41", line_with_nl);
-          mros::shell::remote::note_plain_uart_activity();
-        }
-
-        if (std::strcmp(g_line_buf_t41, "CMD:WIFI_ON") == 0) {
-          wifi_manager_set_enabled(true);
-          wifi_manager_request_reconnect();
-        } else if (std::strcmp(g_line_buf_t41, "CMD:WIFI_OFF") == 0) {
-          wifi_manager_set_enabled(false);
-        }
-      }
-      g_line_len_t41 = 0U;
-      g_line_buf_t41[0] = '\0';
-      g_line_truncated_t41 = false;
       g_cobs_frame_len_t41 = 0U;
       g_cobs_frame_truncated_t41 = false;
       continue;
@@ -548,11 +547,6 @@ static void process_uart1_input() {
       g_cobs_frame_truncated_t41 = true;
     }
 
-    if (g_line_len_t41 < kT41LineBufferSize) {
-      g_line_buf_t41[g_line_len_t41++] = static_cast<char>(b);
-    } else {
-      g_line_truncated_t41 = true;
-    }
   }
 }
 

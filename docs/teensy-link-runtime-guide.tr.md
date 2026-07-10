@@ -22,9 +22,14 @@ Bu doküman ESP32-S3 tarafının Teensy 4.1 robot beynine nasıl bağlandığın
 | `UART_Wifi_Status_t` COBS | Wi-Fi/network state'i Teensy'ye taşır |
 | `MSHELL2:` | Text remote shell bridge |
 | `MSH1` | Binary COBS tunnel |
-| `MUS1` | Encrypted UART hedefi, iki taraf eşleşene kadar kapalı |
+| `MUS1` | Her iki peer'de uygulanan ChaCha20-Poly1305 zarfı; varsayılan fail-closed |
 
-İlk bring-up kuralı: UART crypto kapalı kalsın; TX/RX/GND düşük riskle kanıtlanmadan flow control veya binary bridge açılmasın.
+İlk bring-up kuralı: varsayılan fail-closed profile geçmeden önce iki peer'de de açıkça `MROS_REQUIRE_SECURE_UART=0` kullanılan lab build ile TX/RX/GND kanıtlansın.
+
+Canonical framing, key schedule, replay ve provisioning kontratı
+[`TEENSY41-Brain/docs/protocol/mus1-secure-uart.md`](https://github.com/MCC45TR/TEENSY41-Brain/blob/main/docs/protocol/mus1-secure-uart.md)
+dosyasındadır. UART trafiğinin tamamı artık COBS ve `0x00` delimiter kullanır;
+newline ikinci bir framing protokolü değil, payload byte'ıdır.
 
 ## SPI/QSPI Compatibility
 

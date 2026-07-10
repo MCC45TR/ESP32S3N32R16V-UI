@@ -20,6 +20,7 @@
 #include "src/platform/mros_i2c.h"
 #include "src/platform/mros_time.h"
 #include "src/platform/mros_uart.h"
+#include "src/security/uart_secure.h"
 #include "src/shell/mshell_remote.h"
 
 namespace mros::shell {
@@ -816,7 +817,7 @@ int shell_cmd_spi(ShellContext& ctx) {
 }
 
 void shell_help_uart(ShellState& state) {
-  shell_write_line(state, "Usage: uart status|test [--duration 10] [--json]|noise quiet|normal|verbose|send TEXT|read [N]");
+  shell_write_line(state, "Usage: uart status|test [--duration 10] [--json]|noise quiet|normal|verbose|send TEXT|read [N]|crypto status|self-test|enable --psk HEX|disable");
 }
 
 int shell_cmd_uart(ShellContext& ctx) {
@@ -831,6 +832,7 @@ int shell_cmd_uart(ShellContext& ctx) {
                  static_cast<unsigned long>(diag.log_capacity),
                  uart1_cobs_log_noise_mode_name(uart1_cobs_get_log_noise_mode()),
                  static_cast<unsigned long>(diag.revision));
+    shell_write_line(ctx.state, mros::security::uart_secure::status_text(false).c_str());
     return 0;
   }
   if (ctx.args[1] == "--help") {
@@ -842,6 +844,37 @@ int shell_cmd_uart(ShellContext& ctx) {
     else if (ctx.args[2] == "verbose") uart1_cobs_set_log_noise_mode(UartLogNoiseMode::Verbose);
     else uart1_cobs_set_log_noise_mode(UartLogNoiseMode::Normal);
     return 0;
+  }
+  if (ctx.args[1] == "crypto") {
+    const std::string action = ctx.args.size() >= 3U ? ctx.args[2] : "status";
+    if (action == "status") {
+      shell_write_line(ctx.state, mros::security::uart_secure::status_text(false).c_str());
+      return 0;
+    }
+    std::string error;
+    if (action == "self-test") {
+      const bool ok = mros::security::uart_secure::self_test(&error);
+      shell_printf(ctx.state, "uart crypto self-test: %s%s%s\n", ok ? "PASS" : "FAIL",
+                   error.empty() ? "" : " - ", error.c_str());
+      return ok ? 0 : 1;
+    }
+    if (action == "disable") {
+      const bool ok = mros::security::uart_secure::disable(&error);
+      if (!ok) shell_printf(ctx.state, "uart crypto disable failed: %s\n", error.c_str());
+      return ok ? 0 : 1;
+    }
+    if (action == "enable") {
+      const auto psk_it = std::find(ctx.args.begin() + 3U, ctx.args.end(), "--psk");
+      if (psk_it == ctx.args.end() || (psk_it + 1U) == ctx.args.end()) {
+        shell_write_line(ctx.state, "Usage: uart crypto enable --psk <64-hex>; use only on a trusted local console");
+        return 1;
+      }
+      const bool ok = mros::security::uart_secure::enable_with_psk_hex((psk_it + 1U)->c_str(), &error);
+      if (!ok) shell_printf(ctx.state, "uart crypto enable failed: %s\n", error.c_str());
+      return ok ? 0 : 1;
+    }
+    shell_help_uart(ctx.state);
+    return 1;
   }
   if (ctx.args[1] == "send" && ctx.args.size() >= 3U) {
     std::string text;
